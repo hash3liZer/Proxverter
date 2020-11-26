@@ -1,73 +1,51 @@
 import os
 import sys
 import argparse
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from tabulate import tabulate
+from pull import PULL
+from parser import PARSER
 
-class PULL:
-
-	WHITE = '\033[1m\033[0m'
-	PURPLE = '\033[1m\033[95m'
-	CYAN = '\033[1m\033[96m'
-	DARKCYAN = '\033[1m\033[36m'
-	BLUE = '\033[1m\033[94m'
-	GREEN = '\033[1m\033[92m'
-	YELLOW = '\033[1m\033[93m'
-	RED = '\033[1m\033[91m'
-	BOLD = '\033[1m'
-	UNDERLINE = '\033[4m'
-	END = '\033[0m'
-	LINEUP = '\033[F'
-
-	def __init__(self):
-		if not self.support_colors:
-			self.win_colors()
-
-	def support_colors(self):
-		plat = sys.platform
-		supported_platform = plat != 'Pocket PC' and (plat != 'win32' or \
-														'ANSICON' in os.environ)
-		is_a_tty = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
-		if not supported_platform or not is_a_tty:
-			return False
-		return True
-
-    def halt(self, mss):
-        sys.exit( self.RED + "[~]" + self.END + mss )
-
+## Declarations
 pull = PULL()
 
-class PARSER:
+class PROXVERTER:
 
-    def __init__(self, prs):
-        self.templates = self.templates(prs.templates)
+	def __init__(self, prs):
+		self.prototypes = prs.prototypes
 
-    def templates(self, arg):
-        templates = []
-        dirnamer = ""
-        if arg:
-            if os.path.isdir(arg):
-                dirnamer = arg
-            else:
-                pull.halt("The provided templates directory doesn't exist!")
-        else:
-            dirnamer = os.path.join(os.path.dirname(__file__))
+	def show_prototypes(self):
+		toprint = []
+		for prototype in self.prototypes:
+			toappend = [
+				pull.YELLOW + prototype[0] + pull.END,
+				pull.BLUE + '@hash3liZer' + pull.END,
+				pull.GREEN + 'Running' + pull.END,
+				pull.RED + '23' + pull.END,
+				pull.BOLD + 'google.com.picker.com' + pull.END
+			]
+			toprint.append(toappend)
 
-        files = os.listdir(dirnamer)
-        for file in files:
-            file = os.path.join(dirnamer, file)
-            if file.endswith(".yaml"):
-                data = open(file, "r").read().splitlines()
-                templates.append(tuple(data))
+		headers = [
+			pull.DARKCYAN + 'Prototype' + pull.END,
+			pull.DARKCYAN + 'Author' + pull.END,
+			pull.DARKCYAN + 'Status' + pull.END,
+			pull.DARKCYAN + 'Urls'   + pull.END,
+			pull.DARKCYAN + 'Hostname' + pull.END
+		]
 
-        return templates
+		sys.stdout.write('\n')
+		print(tabulate(toprint, headers=headers, tablefmt='orgtbl'))
+		sys.stdout.write('\n')
 
 def main():
-    parser = argparse.ArgumentParser()
+	pull.logo()
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-p', '--prototypes', dest="prototypes", default="", type=str, help="Path to Prototypes Folder")
+	parser = parser.parse_args()
+	parser = PARSER(parser)
 
-    parser.add_argument('-t', '--templates', dest="templates", default="", type=str, help="Folder containing all the proxying templates")
-
-    parser = parser.parse_args()
-    parser = PARSER(parser)
+	proxverter = PROXVERTER(parser)
+	proxverter.show_prototypes()
 
 if __name__ == "__main__":
-    main()
+	main()
