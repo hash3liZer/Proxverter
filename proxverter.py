@@ -62,11 +62,19 @@ class PROXVERTER:
 			try:
 				resp = session.prompt(mss, style=self.STYLE)
 				if resp:
+					if resp == "exit": break
 					self.handler(resp)
 			except KeyboardInterrupt:
 				pull.session(
-					('', 'Press CTRL+D or enter \'exit\' to exit from Proxverter'),
+					('#d9ce0b bold', '~ '),
+					('', 'Press'),
+					('#d9ce0b bold', ' CTRL+D '),
+					('', 'or enter'),
+					('#d9ce0b bold', ' \'exit\' '),
+					('', 'to exit from Proxverter'),
 				)
+			except EOFError:
+				break
 
 def main():
 	pull.logo()
@@ -78,6 +86,10 @@ def main():
 	proxverter = PROXVERTER(parser)
 	proxverter.show_prototypes()
 	proxverter.start_terminal()
+	pull.session(
+		('#d9ce0b bold', '~ '),
+		('', 'Shutting Down. Hope to see you soon sire. ')
+	)
 
 if __name__ == "__main__":
 	main()

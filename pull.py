@@ -33,7 +33,7 @@ class PULL:
     STYLE = Style.from_dict({
 		'timer': '#0096d6 bold',
 		'headers': '#d40000',
-		'': '#8c8c8c'
+		'': '#d1d1d1'
 	})
 
     def __init__(self):
