@@ -6,6 +6,7 @@ from tabulate import tabulate
 from pull import PULL
 from parser import PARSER
 from termcolor import colored
+from handlers import handlers_parser
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 
@@ -48,7 +49,7 @@ class PROXVERTER:
 		sys.stdout.write('\n')
 
 	def handler(self, _val):
-		return
+		parser = handlers_parser(_val)
 
 	def start_terminal(self):
 		session = PromptSession()
