@@ -1,5 +1,10 @@
 import os
 import sys
+import datetime
+from termcolor import colored
+from prompt_toolkit import print_formatted_text as print_format
+from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.styles import Style
 
 __LOGO__ = """
  ____          __  __              _____    ____
@@ -25,6 +30,12 @@ class PULL:
     END = '\033[0m'
     LINEUP = '\033[F'
 
+    STYLE = Style.from_dict({
+		'timer': '#0096d6 bold',
+		'headers': '#d40000',
+		'': '#8c8c8c'
+	})
+
     def __init__(self):
         if not self.support_colors:
             self.win_colors()
@@ -41,8 +52,19 @@ class PULL:
 
     def info(self, mss):
         print(
-            self.BLUE + "[*] " + self.END + mss
+            colored("[*]", "blue", attrs=['bold']), mss
         )
+
+    def session(self, *args):
+        mss = [
+            ('class:timer', '[{}] '.format(str(datetime.datetime.now().time()).split(".")[0])),
+        ]
+
+        for arg in args:
+            mss.append(arg)
+
+        mss = FormattedText(mss)
+        print_format(mss, style=self.STYLE)
 
     def halt(self, mss):
         sys.exit( self.RED + "[~] " + self.END + mss )

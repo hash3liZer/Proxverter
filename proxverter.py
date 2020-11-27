@@ -1,14 +1,24 @@
 import os
 import sys
 import argparse
+import datetime
 from tabulate import tabulate
 from pull import PULL
 from parser import PARSER
+from termcolor import colored
+from prompt_toolkit import PromptSession
+from prompt_toolkit.styles import Style
 
 ## Declarations
 pull = PULL()
 
 class PROXVERTER:
+
+	STYLE = Style.from_dict({
+		'timer': '#0096d6 bold',
+		'headers': '#d40000',
+		'': '#8c8c8c'
+	})
 
 	def __init__(self, prs):
 		self.prototypes = prs.prototypes
@@ -17,25 +27,46 @@ class PROXVERTER:
 		toprint = []
 		for prototype in self.prototypes:
 			toappend = [
-				pull.YELLOW + prototype[0] + pull.END,
-				pull.BLUE + '@hash3liZer' + pull.END,
-				pull.GREEN + 'Running' + pull.END,
-				pull.RED + '23' + pull.END,
-				pull.BOLD + 'google.com.picker.com' + pull.END
+				colored(prototype[0], 'yellow', attrs=['bold']),
+				colored('@hash3liZer', 'cyan'),
+				colored('Running', 'green'),
+				colored('3', 'red'),
+				colored('www.google.com', 'white')
 			]
 			toprint.append(toappend)
 
 		headers = [
-			pull.DARKCYAN + 'Prototype' + pull.END,
-			pull.DARKCYAN + 'Author' + pull.END,
-			pull.DARKCYAN + 'Status' + pull.END,
-			pull.DARKCYAN + 'Urls'   + pull.END,
-			pull.DARKCYAN + 'Hostname' + pull.END
+			colored('Prototype', 'grey', attrs=['bold']),
+			colored('Author', 'grey', attrs=['bold']),
+			colored('Status', 'grey', attrs=['bold']),
+			colored('Urls', 'grey', attrs=['bold']),
+			colored('Hostname', 'grey', attrs=['bold'])
 		]
 
 		sys.stdout.write('\n')
 		print(tabulate(toprint, headers=headers, tablefmt='orgtbl'))
 		sys.stdout.write('\n')
+
+	def handler(self, _val):
+		return
+
+	def start_terminal(self):
+		session = PromptSession()
+
+		while 1:
+			mss = [
+				('class:timer', '[{}] '.format(str(datetime.datetime.now().time()).split(".")[0])),
+				('class:headers', '$~ '),
+			]
+
+			try:
+				resp = session.prompt(mss, style=self.STYLE)
+				if resp:
+					self.handler(resp)
+			except KeyboardInterrupt:
+				pull.session(
+					('', 'Press CTRL+D or enter \'exit\' to exit from Proxverter'),
+				)
 
 def main():
 	pull.logo()
@@ -46,6 +77,7 @@ def main():
 
 	proxverter = PROXVERTER(parser)
 	proxverter.show_prototypes()
+	proxverter.start_terminal()
 
 if __name__ == "__main__":
 	main()
