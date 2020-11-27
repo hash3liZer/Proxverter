@@ -7,6 +7,9 @@ from pull import PULL
 from parser import PARSER
 from termcolor import colored
 from handlers import handlers_parser
+from handlers import list_commands
+from handlers import CONFIGURATION
+from handlers import PROTOTYPES
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 
@@ -48,8 +51,21 @@ class PROXVERTER:
 		print(tabulate(toprint, headers=headers, tablefmt='orgtbl'))
 		sys.stdout.write('\n')
 
+	def show_invalid_syntax(self):
+		pull.session(
+			('#d9ce0b bold', '~ '),
+			('', 'Invalid Syntax'),
+		)
+
 	def handler(self, _val):
 		parser = handlers_parser(_val)
+
+		if parser.command not in list_commands():
+			return self.show_invalid_syntax()
+
+		if parser.command == 'configuration':
+			configuration = CONFIGURATION(parser)
+			configuration.execute()
 
 	def start_terminal(self):
 		session = PromptSession()

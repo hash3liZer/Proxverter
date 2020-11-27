@@ -1,9 +1,12 @@
 import argparse
+from handlers.configuration import CONFIGURATION
+from handlers.prototypes import PROTOTYPES
 
 def list_commands():
     return (
         'configuration',
         'prototypes',
+        'help'
     )
 
 def handlers_parser(toparse):
@@ -12,8 +15,7 @@ def handlers_parser(toparse):
 
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("command")
-    parser.add_argument("subcommand", nargs="*")
+    parser.add_argument("subcommand", nargs="?")
 
     parser = parser.parse_args(toparse)
-    print(parser.command)
-    print(parser.subcommand)
+    return parser
