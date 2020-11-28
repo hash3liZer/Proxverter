@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import datetime
+import configparser
 from tabulate import tabulate
 from pull import PULL
 from parser import PARSER
@@ -12,9 +13,11 @@ from handlers import CONFIGURATION
 from handlers import PROTOTYPES
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
+from pathlib import Path
 
 ## Declarations
 pull = PULL()
+BASE_DIR = Path(__file__).resolve().parent
 
 class PROXVERTER:
 
@@ -26,6 +29,23 @@ class PROXVERTER:
 
 	def __init__(self, prs):
 		self.prototypes = prs.prototypes
+
+	def populate(self):
+		if not os.path.isfile(os.path.join(BASE_DIR, 'config.ini')):
+			pull.info("Created a new configuration file for the project")
+
+			obj = configparser.ConfigParser()
+			obj['configuration'] = {
+				'domain': '',
+				'ipaddress': '',
+				'certificates_path': '/usr/share/proxverter/',
+				'prototypes_path': '/usr/share/proxverter/prototypes',
+				'debug': True,
+				'port': 443,
+			}
+
+			fl = open(os.path.join(BASE_DIR, 'config.ini'), 'w')
+			obj.write(fl)
 
 	def show_prototypes(self):
 		toprint = []
@@ -101,6 +121,7 @@ def main():
 	parser = PARSER(parser)
 
 	proxverter = PROXVERTER(parser)
+	proxverter.populate()
 	proxverter.show_prototypes()
 	proxverter.start_terminal()
 	pull.session(
