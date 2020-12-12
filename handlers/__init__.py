@@ -16,6 +16,7 @@ def handlers_parser(toparse):
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("command")
     parser.add_argument("subcommand", nargs="?")
+    parser.add_argument("args", nargs="*")
 
     parser = parser.parse_args(toparse)
     return parser

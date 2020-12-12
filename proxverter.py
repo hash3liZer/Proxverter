@@ -40,7 +40,7 @@ class PROXVERTER:
 				'ipaddress': '',
 				'certificates_path': '/usr/share/proxverter/',
 				'prototypes_path': '/usr/share/proxverter/prototypes',
-				'debug': True,
+				'debug': False,
 				'port': 443,
 			}
 

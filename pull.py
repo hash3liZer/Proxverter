@@ -1,6 +1,7 @@
 import os
 import sys
 import datetime
+from pathlib import Path
 from termcolor import colored
 from prompt_toolkit import print_formatted_text as print_format
 from prompt_toolkit.formatted_text import FormattedText
@@ -17,6 +18,7 @@ __LOGO__ = """
 """
 
 class PULL:
+    BASE_DIR = Path(__file__).resolve().parent
     WHITE = '\033[1m\033[0m'
     PURPLE = '\033[1m\033[95m'
     CYAN = '\033[1m\033[96m'
