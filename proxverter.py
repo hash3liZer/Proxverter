@@ -86,6 +86,9 @@ class PROXVERTER:
 		if parser.command == 'configuration':
 			configuration = CONFIGURATION(parser)
 			configuration.execute()
+		elif parser.command == 'prototypes':
+			prototypes    = PROTOTYPES(parser, self)
+			prototypes.execute()
 
 	def start_terminal(self):
 		session = PromptSession()
