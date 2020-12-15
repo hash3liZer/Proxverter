@@ -4,6 +4,12 @@ from pull import PULL
 
 pull = PULL()
 
+class READER:
+
+    def __init__(self):
+        self.cf = configparser.ConfigParser()
+        self.cf.read(os.path.join(pull.BASE_DIR, 'config.ini')) 
+
 class CONFIGURATION:
 
     def __init__(self, prs):

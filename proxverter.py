@@ -1,7 +1,9 @@
 import os
 import sys
+import socket
 import argparse
 import datetime
+import threading
 import configparser
 from tabulate import tabulate
 from pull import PULL
@@ -77,6 +79,21 @@ class PROXVERTER:
 			('', 'Invalid Syntax'),
 		)
 
+	def check_ports(self):
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		try:
+			s.bind(( '', 80 ))
+			s.close()
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			s.bind(( '', 443 ))
+			s.close()
+		except KeyboardInterrupt:
+			pull.session(
+				('#d9ce0b bold', '~ '),
+				('', 'Unable to Bind to Ports 80 and 443')
+			)
+			sys.exit(-1)
+
 	def handler(self, _val):
 		parser = handlers_parser(_val)
 
@@ -126,6 +143,8 @@ def main():
 	proxverter = PROXVERTER(parser)
 	proxverter.populate()
 	proxverter.show_prototypes()
+	proxverter.check_ports()
+
 	proxverter.start_terminal()
 	pull.session(
 		('#d9ce0b bold', '~ '),
