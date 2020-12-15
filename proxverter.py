@@ -13,6 +13,7 @@ from handlers import handlers_parser
 from handlers import list_commands
 from handlers import CONFIGURATION
 from handlers import PROTOTYPES
+from pilus import PROXY
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 from pathlib import Path
@@ -133,6 +134,10 @@ class PROXVERTER:
 			except EOFError:
 				break
 
+	def start_proxy_server(self):
+		proxy = PROXY()
+		proxy.kickoff()
+
 def main():
 	pull.logo()
 	parser = argparse.ArgumentParser()
@@ -144,6 +149,10 @@ def main():
 	proxverter.populate()
 	proxverter.show_prototypes()
 	proxverter.check_ports()
+
+	t = threading.Thread(target=proxverter.start_proxy_server)
+	t.daemon = True
+	t.start()
 
 	proxverter.start_terminal()
 	pull.session(

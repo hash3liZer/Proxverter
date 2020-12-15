@@ -12,15 +12,15 @@ class PROTOTYPES:
             ('', 'Invalid Syntax'),
         )
 
-    def runner(self):
-        return
+    def authorize(self, _args):
+        prototype_name = _args[0]
 
     def execute(self):
         sub = self.parser.subcommand
 
         if sub == 'list':
             self.proxverter.show_prototypes()
-        elif sub == 'run':
-            self.runner(self.parser.args)
+        elif sub == 'authorize':
+            self.authorize(self.parser.args)
         else:
             self.invalid()
