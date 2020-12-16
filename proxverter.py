@@ -150,9 +150,11 @@ def main():
 	proxverter.show_prototypes()
 	proxverter.check_ports()
 
-	t = threading.Thread(target=proxverter.start_proxy_server)
-	t.daemon = True
-	t.start()
+	#t = threading.Thread(target=proxverter.start_proxy_server)
+	#t.daemon = True
+	#t.start()
+
+	proxverter.start_proxy_server()
 
 	proxverter.start_terminal()
 	pull.session(
