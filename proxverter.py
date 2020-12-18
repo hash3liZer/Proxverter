@@ -14,7 +14,7 @@ from handlers import handlers_parser
 from handlers import list_commands
 from handlers import CONFIGURATION
 from handlers import PROTOTYPES
-from pilus import PROXY
+from pilus import PROXYRUNNER
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 from pathlib import Path
@@ -139,7 +139,7 @@ class PROXVERTER:
 		self.STOPPER = True
 
 	def start_proxy_server(self):
-		proxy = PROXY()
+		proxy = PROXYRUNNER()
 		proxy.kickoff()
 
 def main():
