@@ -1,11 +1,18 @@
 import requests
-from twisted.web import server, resource
-from twisted.internet import reactor, endpoints
+from flask import Flask
 
-class Request(resource.Resource):
-    isLeaf = True
-    def render_GET(self, request):
-        return "<html>Hello, world!</html>"
+app = Flask(__name__)
+app.logger.disabled = True
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def request(path):
+    return path
+
+class REQUEST:
+
+    def __init__(self):
+        pass
 
 class PROXY:
 
@@ -13,8 +20,8 @@ class PROXY:
         pass
 
     def kickoff(self):
-        print("Running on Port 80")
-        site = server.Site(Request())
-        endpoint = endpoints.TCP4ServerEndpoint(reactor, 80)
-        endpoint.listen(site)
-        reactor.run()
+        app.run(
+            host="0.0.0.0",
+            port=8090,
+            debug = False
+        )

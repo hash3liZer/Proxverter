@@ -5,6 +5,7 @@ import argparse
 import datetime
 import threading
 import configparser
+from multiprocessing import Process
 from tabulate import tabulate
 from pull import PULL
 from parser import PARSER
@@ -23,6 +24,7 @@ pull = PULL()
 BASE_DIR = Path(__file__).resolve().parent
 
 class PROXVERTER:
+	STOPPER = False
 
 	STYLE = Style.from_dict({
 		'timer': '#0096d6 bold',
@@ -134,6 +136,8 @@ class PROXVERTER:
 			except EOFError:
 				break
 
+		self.STOPPER = True
+
 	def start_proxy_server(self):
 		proxy = PROXY()
 		proxy.kickoff()
@@ -150,13 +154,19 @@ def main():
 	proxverter.show_prototypes()
 	proxverter.check_ports()
 
-	#t = threading.Thread(target=proxverter.start_proxy_server)
-	#t.daemon = True
-	#t.start()
+	t = threading.Thread(target=proxverter.start_terminal)
+	t.daemon = True
+	t.start()
 
-	proxverter.start_proxy_server()
+	server = Process(target=proxverter.start_proxy_server)
+	server.start()
 
-	proxverter.start_terminal()
+	while not proxverter.STOPPER:
+		pass
+
+	server.terminate()
+	server.join()
+
 	pull.session(
 		('#d9ce0b bold', '~ '),
 		('', 'Shutting Down. Hope to see you soon sire. ')
