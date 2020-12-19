@@ -56,8 +56,8 @@ class PROXVERTER:
 		toprint = []
 		for prototype in self.prototypes:
 			toappend = [
-				colored(prototype[0], 'yellow', attrs=['bold']),
-				colored('@hash3liZer', 'cyan'),
+				colored(prototype.get('name'), 'yellow', attrs=['bold']),
+				colored(prototype.get('creator'), 'cyan'),
 				colored('Running', 'green'),
 				colored('3', 'red'),
 				colored('www.google.com', 'white')
@@ -148,10 +148,14 @@ def main():
 	parser.add_argument('-p', '--prototypes', dest="prototypes", default="", type=str, help="Path to Prototypes Folder")
 	parser = parser.parse_args()
 	parser = PARSER(parser)
+	parser.validate()
 
 	proxverter = PROXVERTER(parser)
 	proxverter.populate()
 	proxverter.show_prototypes()
+
+	sys.exit()
+
 	proxverter.check_ports()
 
 	t = threading.Thread(target=proxverter.start_terminal)

