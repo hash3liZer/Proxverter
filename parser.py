@@ -40,20 +40,16 @@ class PARSER:
         return rtval
 
     def validate_fields(self, _fields, _filename):
-        if 'creator' not in _fields:
-            pull.halt('Prototype: {} Reason: {} Err: "creator" field is not found'.format(
-                _filename, 'Invalid Syntax'
-            ))
+        def _vald(_field):
+            if _field not in _fields:
+                pull.halt('Prototype: {} Reason: {} Err: "{}" field is not found'.format(
+                    _filename, 'Invalid Syntax', _field
+                ))
 
-        if 'name' not in _fields:
-            pull.halt('Prototype: {} Reason: {} Err: "name" field is not found'.format(
-                _filename, 'Invalid Syntax'
-            ))
-
-        if 'proto' not in _fields:
-            pull.halt('Prototype: {} Reason: {} Err: "proto" field is not found'.format(
-                _filename, 'Invalid Syntax'
-            ))
+        _vald('creator')
+        _vald('name')
+        _vald('proto')
+        _vald('subdomains')
 
     def validate_field_creator(self, _val, _filename):
         if not _val:
