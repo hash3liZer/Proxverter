@@ -39,17 +39,15 @@ class PARSER:
 
         return rtval
 
-    def validate_fields(self, _fields, _filename):
+    def validate_fields(self, _fields, _filename, *args):
         def _vald(_field):
             if _field not in _fields:
                 pull.halt('Prototype: {} Reason: {} Err: "{}" field is not found'.format(
                     _filename, 'Invalid Syntax', _field
                 ))
 
-        _vald('creator')
-        _vald('name')
-        _vald('proto')
-        _vald('subdomains')
+        for arg in args:
+            _vald(arg)
 
     def validate_field_creator(self, _val, _filename):
         if not _val:
@@ -87,17 +85,43 @@ class PARSER:
 
         return _val
 
+    def validate_field_subdomains(self, _val, _filename):
+        if not _val:
+            pull.halt('Prototype: {} Reason: {} Err: "subdomains" field can\'t be left empty'.format(
+                _filename, 'Value Error'
+            ))
+
+        return _val
+
     def validate(self):
         _checked = []                                   # Names of already checked Prototypes
         for prototype in self.prototypes:
-            keys = prototype.keys()
-            self.validate_fields(keys, prototype.get('filename'))
+
+            self.validate_fields(
+                prototype.keys(),
+                prototype.get('filename'),
+                'creator',
+                'name',
+                'proto',
+                'subdomains'
+            )
+
+            for subdomain in prototype.get('subdomains'):
+                self.validate_fields(
+                    subdomain.keys(),
+                    prototype.get('filename'),
+                    'original',
+                    'substitution',
+                    'domain',
+                )
+
             if prototype.get('name') not in _checked:
                 _checked.append(prototype.get('name'))
 
                 self.prototypes[self.prototypes.index(prototype)]['creator'] = self.validate_field_creator(prototype.get('creator'), prototype.get('filename'))
                 self.prototypes[self.prototypes.index(prototype)]['name'] = self.validate_field_name(prototype.get('name'), prototype.get('filename'))
                 self.prototypes[self.prototypes.index(prototype)]['proto'] = self.validate_field_proto(prototype.get('proto'), prototype.get('filename'))
+                self.prototypes[self.prototypes.index(prototype)]['subdomains'] = self.validate_field_subdomains(prototype.get('subdomains'), prototype.get('filename'))
             else:
                 pull.halt('Prototype: {} Reason: {} Err: Two prototypes with conflicting name "{}" detected'.format(
                     prototype.get('filename'), 'Conflicting Name', prototype.get('name')
