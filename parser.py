@@ -103,7 +103,12 @@ class PARSER:
                 'creator',
                 'name',
                 'proto',
-                'subdomains'
+                'landing',
+                'subdomains',
+                'substitutions',
+                'cookies',
+                'captures',
+                'authentication'
             )
 
             for subdomain in prototype.get('subdomains'):
@@ -113,6 +118,24 @@ class PARSER:
                     'original',
                     'substitution',
                     'domain',
+                )
+
+            for substitution in prototype.get('substitutions'):
+                self.validate_fields(
+                    substitution.keys(),
+                    prototype.get('filename'),
+                    'host',
+                    'search',
+                    'replace',
+                    'content'
+                )
+
+            for capture in prototype.get('captures'):
+                self.validate_fields(
+                    capture.keys(),
+                    prototype.get('filename'),
+                    'name',
+                    'type'
                 )
 
             if prototype.get('name') not in _checked:
