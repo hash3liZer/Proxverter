@@ -67,9 +67,6 @@ class PARSER:
                 _filename, 'Value Error'
             ))
 
-        if not _val.startswith('#'):
-            _val = '#' + _val
-
         return _val
 
     def validate_field_proto(self, _val, _filename):

@@ -5,24 +5,31 @@ import argparse
 import datetime
 import threading
 import configparser
+
+## From Imports
 from multiprocessing import Process
 from tabulate import tabulate
 from pull import PULL
 from parser import PARSER
 from termcolor import colored
+from prompt_toolkit import PromptSession
+from prompt_toolkit.styles import Style
+
+## Handler Imports
 from handlers import handlers_parser
 from handlers import list_commands
 from handlers import CONFIGURATION
+from handlers import CONFIGREADER
+from handlers import CONFIGWRITER
 from handlers import PROTOTYPES
+
+## Pilus Imports
 from pilus import PROXYRUNNER
-from prompt_toolkit import PromptSession
-from prompt_toolkit.styles import Style
-from pathlib import Path
 
 ## Declarations
 pull = PULL()
-BASE_DIR = Path(__file__).resolve().parent
 
+## Proxverter Main Class
 class PROXVERTER:
 	STOPPER = False
 
@@ -36,21 +43,11 @@ class PROXVERTER:
 		self.prototypes = prs.prototypes
 
 	def populate(self):
-		if not os.path.isfile(os.path.join(BASE_DIR, 'config.ini')):
+		config_reader = CONFIGREADER()
+		if not config_reader.exists():
 			pull.info("Created a new configuration file for the project")
-
-			obj = configparser.ConfigParser()
-			obj['configuration'] = {
-				'domain': '',
-				'ipaddress': '',
-				'certificates_path': '/usr/share/proxverter/',
-				'prototypes_path': '/usr/share/proxverter/prototypes',
-				'debug': False,
-				'port': 443,
-			}
-
-			fl = open(os.path.join(BASE_DIR, 'config.ini'), 'w')
-			obj.write(fl)
+			config_writer = CONFIGWRITER()
+			config_writer.create_config(self.prototypes)
 
 	def show_prototypes(self):
 		toprint = []

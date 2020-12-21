@@ -1,14 +1,40 @@
 import configparser
 import os
+import pathlib
 from pull import PULL
 
 pull = PULL()
 
-class READER:
+class CONFIG:
+    BASEPATH = os.path.join(pathlib.Path(__file__).resolve().parent.parent, 'config.ini')
 
-    def __init__(self):
-        self.cf = configparser.ConfigParser()
-        self.cf.read(os.path.join(pull.BASE_DIR, 'config.ini')) 
+class CONFIGWRITER(CONFIG):
+
+    def create_config(self, _prototypes):
+        obj = configparser.ConfigParser()
+        obj['configuration'] = {
+            'domain': '',
+            'ipaddress': '',
+            'certificates_path': '/usr/share/proxverter/',
+            'prototypes_path': '/usr/share/proxverter/prototypes',
+            'debug': False,
+            'port': 443,
+        }
+
+        obj['prototypes'] = {}
+
+        for prototype in _prototypes:
+            obj['prototypes'][prototype.get('name')] = 'stopped'
+
+        fl = open(self.BASEPATH, 'w')
+        obj.write(fl)
+
+class CONFIGREADER(CONFIG):
+
+    def exists(self):
+        if os.path.isfile(self.BASEPATH):
+            return True
+        return False
 
 class CONFIGURATION:
 

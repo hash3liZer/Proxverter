@@ -1,4 +1,6 @@
 import argparse
+from handlers.configuration import CONFIGREADER
+from handlers.configuration import CONFIGWRITER
 from handlers.configuration import CONFIGURATION
 from handlers.prototypes import PROTOTYPES
 
