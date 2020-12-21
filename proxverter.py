@@ -40,6 +40,8 @@ class PROXVERTER:
 	})
 
 	def __init__(self, prs):
+		self.debug = prs.debug
+		self.prototypes_path = prs.prototypes_path
 		self.prototypes = prs.prototypes
 		self.config_reader = CONFIGREADER()
 		self.config_writer = CONFIGWRITER()
@@ -78,25 +80,25 @@ class PROXVERTER:
 		print(tabulate(toprint, headers=headers, tablefmt='orgtbl'))
 		sys.stdout.write('\n')
 
+	def show_prints(self):
+		pull.session(('#37adbf bold', '- '), ('', 'Running in stable mode. Phishlets detected: '), ('#37adbf', str(len(self.prototypes))))
+		pull.session(('#37adbf bold', '- '), ('', 'Configuration: '), ('#37adbf', self.config_reader.BASEPATH))
+		pull.session(('#37adbf bold', '- '), ('', 'Prototypes: '), ('#37adbf', self.prototypes_path))
+		pull.session(('#37adbf bold', '- '), ('', 'Debug Mode: '), ('#37adbf', 'On' if self.debug else 'Off'))
+		pull.session(('#37adbf bold', '- '), ('', 'Binding Port: '), ('#37adbf', str(self.config_reader.get_port())))
+		sys.stdout.write('\n')
+
 	def show_invalid_syntax(self):
-		pull.session(
-			('#d9ce0b bold', '~ '),
-			('', 'Invalid Syntax'),
-		)
+		pull.session(('#bb00c2 bold', '~ '), ('', 'Invalid Syntax'))
 
 	def check_ports(self):
+		p = self.config_reader.get_port()
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		try:
-			s.bind(( '', 80 ))
+			s.bind(( '', p ))
 			s.close()
-			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			s.bind(( '', 443 ))
-			s.close()
-		except KeyboardInterrupt:
-			pull.session(
-				('#d9ce0b bold', '~ '),
-				('', 'Unable to Bind to Ports 80 and 443')
-			)
+		except OSError:
+			pull.session(('#bb00c2 bold', '~ '), ('', 'Unable to bind to port number '), ('#bb00c2', str(p)))
 			sys.exit(-1)
 
 	def handler(self, _val):
@@ -127,14 +129,7 @@ class PROXVERTER:
 					if resp == "exit": break
 					self.handler(resp)
 			except KeyboardInterrupt:
-				pull.session(
-					('#d9ce0b bold', '~ '),
-					('', 'Press'),
-					('#d9ce0b bold', ' CTRL+D '),
-					('', 'or enter'),
-					('#d9ce0b bold', ' \'exit\' '),
-					('', 'to exit from Proxverter'),
-				)
+				pull.session(('#bb00c2 bold', '; '), ('', 'Press'), ('#bb00c2 bold', ' CTRL+D '), ('', 'or enter'), ('#bb00c2 bold', ' \'exit\' '), ('', 'to exit from Proxverter'))
 			except EOFError:
 				break
 
@@ -148,6 +143,7 @@ def main():
 	pull.logo()
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-p', '--prototypes', dest="prototypes", default="", type=str, help="Path to Prototypes Folder")
+	parser.add_argument('--debug', dest="debug", default=False, action="store_true", help="Turn on Debug mode")
 	parser = parser.parse_args()
 	parser = PARSER(parser)
 	parser.validate()
@@ -156,10 +152,8 @@ def main():
 	proxverter.populate()
 	proxverter.update_prototypes()
 	proxverter.show_prototypes()
-
-	sys.exit()
-
 	proxverter.check_ports()
+	proxverter.show_prints()
 
 	t = threading.Thread(target=proxverter.start_terminal)
 	t.daemon = True
@@ -174,10 +168,7 @@ def main():
 	server.terminate()
 	server.join()
 
-	pull.session(
-		('#d9ce0b bold', '~ '),
-		('', 'Shutting Down. Hope to see you soon sire. ')
-	)
+	pull.session(('#bb00c2 bold', '; '), ('', 'Shutting Down. Hope to see you soon sire. '))
 
 if __name__ == "__main__":
 	main()

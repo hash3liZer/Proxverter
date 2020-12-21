@@ -10,6 +10,8 @@ class PARSER:
     DEF_PROTOTYPES = "/usr/share/proxverter/prototypes"
 
     def __init__(self, prs):
+        self.debug = prs.debug
+        self.prototypes_path = prs.prototypes
         self.prototypes = self.prototypes(prs.prototypes)
 
     def prototypes(self, _val):

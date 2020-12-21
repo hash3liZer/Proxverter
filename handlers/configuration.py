@@ -24,10 +24,8 @@ class CONFIGWRITER(CONFIG):
         obj['configuration'] = {
             'domain': '',
             'ipaddress': '',
-            'certificates_path': '/usr/share/proxverter/',
             'prototypes_path': '/usr/share/proxverter/prototypes',
-            'debug': False,
-            'port': 443,
+            'port': 80,
         }
 
         obj['prototypes'] = {}
@@ -61,6 +59,10 @@ class CONFIGREADER(CONFIG):
 
         return ''
 
+    def get_port(self):
+        obj = self.get_fresh_config()
+        return int(obj['configuration']['port'])
+
 class CONFIGURATION:
 
     def __init__(self, prs):
@@ -71,23 +73,6 @@ class CONFIGURATION:
             ('#d9ce0b bold', '~ '),
             ('', 'Invalid Syntax'),
         )
-
-    def write_debug(self, _val):
-        if _val:
-            cf = configparser.ConfigParser()
-            cf.read(os.path.join(pull.BASE_DIR, 'config.ini'))
-
-            if _val[0] == "on":
-                cf['configuration']['debug'] = 'True'
-            elif _val[0] == "off":
-                cf['configuration']['debug'] = 'False'
-            else:
-                self.invalid()
-
-            fl = open(os.path.join(pull.BASE_DIR, 'config.ini'), 'w')
-            cf.write(fl)
-        else:
-            self.invalid()
 
     def write_domain(self, _val):
         if _val:
@@ -125,18 +110,6 @@ class CONFIGURATION:
         else:
             self.invalid()
 
-    def write_certificates_path(self, _val):
-        if _val:
-            cf = configparser.ConfigParser()
-            cf.read(os.path.join(pull.BASE_DIR, 'config.ini'))
-
-            cf['configuration']['certificates_path'] = _val[0]
-
-            fl = open(os.path.join(pull.BASE_DIR, 'config.ini'), 'w')
-            cf.write(fl)
-        else:
-            self.invalid()
-
     def write_port(self, _val):
         if _val:
             cf = configparser.ConfigParser()
@@ -165,10 +138,6 @@ class CONFIGURATION:
             self.write_ipaddress(self.parser.args)
         elif self.parser.subcommand == "prototypes_path":
             self.write_prototypes_path(self.parser.args)
-        elif self.parser.subcommand == "certificates_path":
-            self.write_certificates_path(self.parser.args)
-        elif self.parser.subcommand == "debug":
-            self.write_debug(self.parser.args)
         elif self.parser.subcommand == "port":
             self.write_port(self.parser.args)
         elif self.parser.subcommand == "list":
