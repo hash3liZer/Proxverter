@@ -85,6 +85,12 @@ class PARSER:
 
         return _val
 
+    def validate_field_landing(self, _val, _filename):
+        if not _val:
+            pull.halt('Prototype: {} Reason: {} Err: "landing" field can\'t be left empty'.format(
+                _filename, 'Value Error'
+            ))
+
     def validate_field_subdomains(self, _val, _filename):
         if not _val:
             pull.halt('Prototype: {} Reason: {} Err: "subdomains" field can\'t be left empty'.format(
@@ -144,6 +150,7 @@ class PARSER:
                 self.prototypes[self.prototypes.index(prototype)]['creator'] = self.validate_field_creator(prototype.get('creator'), prototype.get('filename'))
                 self.prototypes[self.prototypes.index(prototype)]['name'] = self.validate_field_name(prototype.get('name'), prototype.get('filename'))
                 self.prototypes[self.prototypes.index(prototype)]['proto'] = self.validate_field_proto(prototype.get('proto'), prototype.get('filename'))
+                self.prototypes[self.prototypes.index(prototype)]['landing'] = self.validate_field_landing(prototype.get('landing'), prototype.get('filename'))
                 self.prototypes[self.prototypes.index(prototype)]['subdomains'] = self.validate_field_subdomains(prototype.get('subdomains'), prototype.get('filename'))
             else:
                 pull.halt('Prototype: {} Reason: {} Err: Two prototypes with conflicting name "{}" detected'.format(
