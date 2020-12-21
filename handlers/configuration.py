@@ -8,6 +8,15 @@ pull = PULL()
 class CONFIG:
     BASEPATH = os.path.join(pathlib.Path(__file__).resolve().parent.parent, 'config.ini')
 
+    def get_fresh_config(self):
+        cf = configparser.ConfigParser()
+        cf.read(self.BASEPATH)
+        return cf
+
+    def save_fresh_config(self, config_obj):
+        fl = open(self.BASEPATH, 'w')
+        config_obj.write(fl)
+
 class CONFIGWRITER(CONFIG):
 
     def create_config(self, _prototypes):
@@ -26,8 +35,16 @@ class CONFIGWRITER(CONFIG):
         for prototype in _prototypes:
             obj['prototypes'][prototype.get('name')] = 'stopped'
 
-        fl = open(self.BASEPATH, 'w')
-        obj.write(fl)
+        self.save_fresh_config(obj)
+
+    def update_config(self, _prototypes):
+        obj = self.get_fresh_config()
+        prototypes = list(obj['prototypes'].keys())
+        for prototype in _prototypes:
+            if prototype.get('name') not in prototypes:
+                obj['prototypes'][prototype.get('name')] = 'stopped'
+
+        self.save_fresh_config(obj)
 
 class CONFIGREADER(CONFIG):
 
@@ -35,6 +52,14 @@ class CONFIGREADER(CONFIG):
         if os.path.isfile(self.BASEPATH):
             return True
         return False
+
+    def get_state(self, _prototype):
+        config_obj = self.get_fresh_config()
+        for (prototype, state) in config_obj['prototypes'].items():
+            if prototype == _prototype:
+                return state
+
+        return ''
 
 class CONFIGURATION:
 

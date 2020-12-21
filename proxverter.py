@@ -41,13 +41,18 @@ class PROXVERTER:
 
 	def __init__(self, prs):
 		self.prototypes = prs.prototypes
+		self.config_reader = CONFIGREADER()
+		self.config_writer = CONFIGWRITER()
 
 	def populate(self):
-		config_reader = CONFIGREADER()
-		if not config_reader.exists():
-			pull.info("Created a new configuration file for the project")
-			config_writer = CONFIGWRITER()
-			config_writer.create_config(self.prototypes)
+		if not self.config_reader.exists():
+			self.config_writer.create_config(self.prototypes)
+		else:
+			self.config_writer.update_config(self.prototypes)
+
+	def update_prototypes(self):
+		for prototype in self.prototypes:
+			self.prototypes[self.prototypes.index(prototype)]['state'] = self.config_reader.get_state(prototype.get('name'))
 
 	def show_prototypes(self):
 		toprint = []
@@ -149,6 +154,7 @@ def main():
 
 	proxverter = PROXVERTER(parser)
 	proxverter.populate()
+	proxverter.update_prototypes()
 	proxverter.show_prototypes()
 
 	sys.exit()
