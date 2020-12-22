@@ -143,13 +143,22 @@ class CONFIGURATION:
 
     def write_port(self, _val):
         if _val:
-            cf = configparser.ConfigParser()
-            cf.read(os.path.join(pull.BASE_DIR, 'config.ini'))
+            _p = _val[0]
+            if _p.isnumeric():
+                _p = int(_p)
+                if _p > 0 and _p < 65536:
 
-            cf['configuration']['port'] = _val[0]
-
-            fl = open(os.path.join(pull.BASE_DIR, 'config.ini'), 'w')
-            cf.write(fl)
+                else:
+                    pull.session(
+                        ('#bb00c2 bold', '; '),
+                        ('', 'The provided port value must be 1-65535')
+                    )
+            else:
+                pull.session(
+                    ('#bb00c2 bold', '; '),
+                    ('', 'The provided port value must be an Integer: '),
+                    ('#bb00c2', _val[0])
+                )
         else:
             self.invalid()
 
