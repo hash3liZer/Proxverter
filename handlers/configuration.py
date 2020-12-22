@@ -1,5 +1,6 @@
 import configparser
 import os
+import re
 import pathlib
 from pull import PULL
 
@@ -7,6 +8,8 @@ pull = PULL()
 
 class CONFIG:
     BASEPATH = os.path.join(pathlib.Path(__file__).resolve().parent.parent, 'config.ini')
+    REGEX_DOMAIN = r"/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/"
+    REGEX_IPADDRESS = r"'\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'"
 
     def get_fresh_config(self):
         cf = configparser.ConfigParser()
@@ -28,20 +31,33 @@ class CONFIGWRITER(CONFIG):
             'port': 80,
         }
 
-        obj['prototypes'] = {}
+        obj['states'] = {}
+        obj['hostnames'] = {}
 
         for prototype in _prototypes:
-            obj['prototypes'][prototype.get('name')] = 'stopped'
+            obj['states'][prototype.get('name')] = 'stopped'
+
+        for prototype in _prototypes:
+            obj['hostnames'][prototype.get('name')] = ''
 
         self.save_fresh_config(obj)
 
     def update_config(self, _prototypes):
         obj = self.get_fresh_config()
-        prototypes = list(obj['prototypes'].keys())
+        states = list(obj['states'].keys())
+        hostnames = list(obj['hostnames'].keys())
         for prototype in _prototypes:
-            if prototype.get('name') not in prototypes:
-                obj['prototypes'][prototype.get('name')] = 'stopped'
+            if prototype.get('name') not in states:
+                obj['states'][prototype.get('name')] = 'stopped'
 
+            if prototype.get('name') not in hostnames:
+                obj['hostnames'][prototype.get('name')] = ''
+
+        self.save_fresh_config(obj)
+
+    def write_conig(self, _name, _val):
+        obj = self.get_fresh_config()
+        obj['configuration'][_name] = _val
         self.save_fresh_config(obj)
 
 class CONFIGREADER(CONFIG):
@@ -53,9 +69,17 @@ class CONFIGREADER(CONFIG):
 
     def get_state(self, _prototype):
         config_obj = self.get_fresh_config()
-        for (prototype, state) in config_obj['prototypes'].items():
+        for (prototype, value) in config_obj['states'].items():
             if prototype == _prototype:
-                return state
+                return value
+
+        return ''
+
+    def get_hostname(self, _prototype):
+        config_obj = self.get_fresh_config()
+        for (prototype, value) in config_obj['hostnames'].items():
+            if prototype == _prototype:
+                return value
 
         return ''
 
@@ -67,34 +91,40 @@ class CONFIGURATION:
 
     def __init__(self, prs):
         self.parser = prs
+        self.config_reader = CONFIGREADER()
+        self.config_writer = CONFIGWRITER()
 
     def invalid(self):
         pull.session(
-            ('#d9ce0b bold', '~ '),
+            ('#bb00c2 bold', '; '),
             ('', 'Invalid Syntax'),
         )
 
     def write_domain(self, _val):
         if _val:
-            cf = configparser.ConfigParser()
-            cf.read(os.path.join(pull.BASE_DIR, 'config.ini'))
-
-            cf['configuration']['domain'] = _val[0]
-
-            fl = open(os.path.join(pull.BASE_DIR, 'config.ini'), 'w')
-            cf.write(fl)
+            obj = re.match(self.REGEX_DOMAIN, _val[0])
+            if obj:
+                self.write_config('domain', _val[0])
+            else:
+                pull.session(
+                    ('#bb00c2 bold', '; '),
+                    ('', 'The provided domain value is not valid: '),
+                    ('#bb00c2', _val[0])
+                )
         else:
             self.invalid()
 
     def write_ipaddress(self, _val):
         if _val:
-            cf = configparser.ConfigParser()
-            cf.read(os.path.join(pull.BASE_DIR, 'config.ini'))
-
-            cf['configuration']['ipaddress'] = _val[0]
-
-            fl = open(os.path.join(pull.BASE_DIR, 'config.ini'), 'w')
-            cf.write(fl)
+            obj = re.match(self.REGEX_IADDRESS, _val[0])
+            if obj:
+                self.write_config('ipaddress', _val[0])
+            else:
+                pull.session(
+                    ('#bb00c2 bold', '; '),
+                    ('', 'The provided ip address value is not valid: '),
+                    ('#bb00c2', _val[0])
+                )
         else:
             self.invalid()
 
@@ -132,15 +162,15 @@ class CONFIGURATION:
             print(key)
 
     def execute(self):
-        if self.parser.subcommand == "domain":
+        if self.parser.subcommand == "DOMAIN":
             self.write_domain(self.parser.args)
-        elif self.parser.subcommand == "ipaddress":
+        elif self.parser.subcommand == "IP_ADDRESS":
             self.write_ipaddress(self.parser.args)
-        elif self.parser.subcommand == "prototypes_path":
+        elif self.parser.subcommand == "PROTOTYPES_PATH":
             self.write_prototypes_path(self.parser.args)
-        elif self.parser.subcommand == "port":
+        elif self.parser.subcommand == "PORT":
             self.write_port(self.parser.args)
-        elif self.parser.subcommand == "list":
+        elif self.parser.subcommand == "LIST":
             self.list_config()
         else:
             self.invalid()

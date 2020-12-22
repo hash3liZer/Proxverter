@@ -55,24 +55,27 @@ class PROXVERTER:
 	def update_prototypes(self):
 		for prototype in self.prototypes:
 			self.prototypes[self.prototypes.index(prototype)]['state'] = self.config_reader.get_state(prototype.get('name'))
+			self.prototypes[self.prototypes.index(prototype)]['hostname'] = self.config_reader.get_hostname(prototype.get('name'))
 
 	def show_prototypes(self):
 		toprint = []
 		for prototype in self.prototypes:
 			toappend = [
-				colored(prototype.get('name'), 'yellow', attrs=['bold']),
+				colored(prototype.get('name'), 'yellow'),
+				colored(prototype.get('proto'), 'white'),
 				colored(prototype.get('creator'), 'cyan'),
-				colored('Running', 'green'),
-				colored('3', 'red'),
-				colored('www.google.com', 'white')
+				colored(prototype.get('state'), 'green'),
+				colored(str(len(prototype.get('subdomains'))), 'red'),
+				colored(prototype.get('hostname'), 'white')
 			]
 			toprint.append(toappend)
 
 		headers = [
 			colored('Prototype', 'grey', attrs=['bold']),
-			colored('Author', 'grey', attrs=['bold']),
+			colored('Protocol', 'grey', attrs=['bold']),
+			colored('Creator', 'grey', attrs=['bold']),
 			colored('Status', 'grey', attrs=['bold']),
-			colored('Urls', 'grey', attrs=['bold']),
+			colored('Subdomains', 'grey', attrs=['bold']),
 			colored('Hostname', 'grey', attrs=['bold'])
 		]
 
@@ -107,7 +110,7 @@ class PROXVERTER:
 		if parser.command not in list_commands():
 			return self.show_invalid_syntax()
 
-		if parser.command == 'configuration':
+		if parser.command == 'set':
 			configuration = CONFIGURATION(parser)
 			configuration.execute()
 		elif parser.command == 'prototypes':
