@@ -130,13 +130,14 @@ class CONFIGURATION:
 
     def write_prototypes_path(self, _val):
         if _val:
-            cf = configparser.ConfigParser()
-            cf.read(os.path.join(pull.BASE_DIR, 'config.ini'))
-
-            cf['configuration']['prototypes_path'] = _val[0]
-
-            fl = open(os.path.join(pull.BASE_DIR, 'config.ini'), 'w')
-            cf.write(fl)
+            if os.path.isdir(_val[0]):
+                self.write_config('prototypes_path', _val[0])
+            else:
+                pull.session(
+                    ('#bb00c2 bold', '; '),
+                    ('', 'The provided prototypes directory does not exists: '),
+                    ('#bb00c2', _val[0])
+                )
         else:
             self.invalid()
 
