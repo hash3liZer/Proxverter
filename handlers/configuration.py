@@ -8,8 +8,8 @@ pull = PULL()
 
 class CONFIG:
     BASEPATH = os.path.join(pathlib.Path(__file__).resolve().parent.parent, 'config.ini')
-    REGEX_DOMAIN = r"/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/"
-    REGEX_IPADDRESS = r"'\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b'"
+    REGEX_DOMAIN = r"^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$"
+    REGEX_IPADDRESS = r"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}"
 
     def get_fresh_config(self):
         cf = configparser.ConfigParser()
@@ -55,7 +55,7 @@ class CONFIGWRITER(CONFIG):
 
         self.save_fresh_config(obj)
 
-    def write_conig(self, _name, _val):
+    def write_config(self, _name, _val):
         obj = self.get_fresh_config()
         obj['configuration'][_name] = _val
         self.save_fresh_config(obj)
@@ -87,7 +87,7 @@ class CONFIGREADER(CONFIG):
         obj = self.get_fresh_config()
         return int(obj['configuration']['port'])
 
-class CONFIGURATION:
+class CONFIGURATION(CONFIG):
 
     def __init__(self, prs):
         self.parser = prs
@@ -104,7 +104,7 @@ class CONFIGURATION:
         if _val:
             obj = re.match(self.REGEX_DOMAIN, _val[0])
             if obj:
-                self.write_config('domain', _val[0])
+                self.config_writer.write_config('domain', _val[0])
             else:
                 pull.session(
                     ('#bb00c2 bold', '; '),
@@ -116,9 +116,9 @@ class CONFIGURATION:
 
     def write_ipaddress(self, _val):
         if _val:
-            obj = re.match(self.REGEX_IADDRESS, _val[0])
+            obj = re.match(self.REGEX_IPADDRESS, _val[0])
             if obj:
-                self.write_config('ipaddress', _val[0])
+                self.config_writer.write_config('ipaddress', _val[0])
             else:
                 pull.session(
                     ('#bb00c2 bold', '; '),
@@ -131,7 +131,7 @@ class CONFIGURATION:
     def write_prototypes_path(self, _val):
         if _val:
             if os.path.isdir(_val[0]):
-                self.write_config('prototypes_path', _val[0])
+                self.config_writer.write_config('prototypes_path', _val[0])
             else:
                 pull.session(
                     ('#bb00c2 bold', '; '),
@@ -147,7 +147,7 @@ class CONFIGURATION:
             if _p.isnumeric():
                 _p = int(_p)
                 if _p > 0 and _p < 65536:
-
+                    self.config_writer.write_config('port', str(_p))
                 else:
                     pull.session(
                         ('#bb00c2 bold', '; '),
@@ -163,13 +163,11 @@ class CONFIGURATION:
             self.invalid()
 
     def list_config(self):
-        cf = configparser.ConfigParser()
-        cf.read(os.path.join(pull.BASE_DIR, 'config.ini'))
+        obj = self.get_fresh_config()
+        obj = obj['configuration']
 
-        keys = list(cf['configuration'].keys())
-
-        for key in keys:
-            print(key)
+        for (key, val) in obj.items():
+            pull.session(('#37adbf bold', '- '), ('', '{}: '.format(key)), ('#37adbf', val))
 
     def execute(self):
         if self.parser.subcommand == "DOMAIN":
@@ -180,7 +178,7 @@ class CONFIGURATION:
             self.write_prototypes_path(self.parser.args)
         elif self.parser.subcommand == "PORT":
             self.write_port(self.parser.args)
-        elif self.parser.subcommand == "LIST":
+        elif self.parser.subcommand == "options":
             self.list_config()
         else:
             self.invalid()

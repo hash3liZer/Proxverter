@@ -110,7 +110,7 @@ class PROXVERTER:
 		if parser.command not in list_commands():
 			return self.show_invalid_syntax()
 
-		if parser.command == 'set':
+		if parser.command == 'set' or parser.command == 'show':
 			configuration = CONFIGURATION(parser)
 			configuration.execute()
 		elif parser.command == 'prototypes':

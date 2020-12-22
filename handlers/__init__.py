@@ -6,6 +6,7 @@ from handlers.prototypes import PROTOTYPES
 
 def list_commands():
     return (
+        'show',
         'set',
         'prototypes',
         'help'
