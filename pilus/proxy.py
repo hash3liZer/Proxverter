@@ -1,42 +1,44 @@
 from hyper import HTTP11Connection
 from hyper import HTTP20Connection
-from flask import Flask
-from flask import request as flask_request
+from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer
+from functools import partial
 
-app = Flask(__name__)
-app.logger.disabled = True
+class PROXY(BaseHTTPRequestHandler):
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def proxy_handler(path):
-    proxy = PROXY(
-        flask_request.method,
-        flask_request.headers,
-        flask_request.cookies,
-        flask_request.form,
-    )
-    return proxy.render()
+    def __init__(self, prototypes, *args, **kwargs):
+        self.prototypes = prototypes
+        super().__init__(*args, **kwargs)
 
-class PROXY:
+    def do_GET(self):
+        host = self.headers.get('Host')
+        if not host:
+            return
 
-    def __init__(self, method, headers, cookies, form):
-        self.method = method
-        self.headers = headers
-        self.cookies = cookies
-        self.form    = form
-
-    def render(self):
-        return
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(self.headers['Host'].encode())
 
 class PROXYRUNNER:
 
-    def __init__(self, ip, port):
+    SERVER = None
+
+    def __init__(self, ip, port, prototypes):
         self.ip = ip
         self.port = port
+        self.prototypes = prototypes
 
     def kickoff(self):
-        app.run(
-            host=self.ip,
-            port=self.port,
-            debug = False
-        )
+        pp = partial(PROXY, self.prototypes)
+        try:
+            self.SERVER = HTTPServer(
+                (self.ip, self.port), pp
+            )
+            self.SERVER.serve_forever()
+        except:
+            self.close()
+
+    def close(self):
+        if self.SERVER:
+            self.SERVER.server_close()

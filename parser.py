@@ -79,7 +79,7 @@ class PARSER:
                 _filename, 'Value Error'
             ))
 
-        if _val != 'http' or _val != 'https':
+        if _val != 'http' and _val != 'https':
             pull.halt('Prototype: {} Reason: {} Err: "proto" field allowed values [http, https]'.format(
                 _filename, 'Value Error'
             ))
@@ -92,8 +92,8 @@ class PARSER:
                 _filename, 'Value Error'
             ))
 
-        if _val != '1.1' or _val != '2.0':
-            pull.halt('Prototype: {} Reason: {} Err: "proto" field allowed values [1.1, 2.0]'.format(
+        if _val != '1.1' and _val != '2.0':
+            pull.halt('Prototype: {} Reason: {} Err: "http_version" field allowed values [1.1, 2.0]'.format(
                 _filename, 'Value Error'
             ))
 

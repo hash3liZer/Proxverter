@@ -139,8 +139,8 @@ class PROXVERTER:
 		self.STOPPER = True
 
 	def start_proxy_server(self):
-		proxy = PROXYRUNNER(self.config_reader.get_ipaddress(), self.config_reader.get_port())
-		proxy.kickoff()
+		self.proxy = PROXYRUNNER(self.config_reader.get_ipaddress(), self.config_reader.get_port(), self.prototypes)
+		self.proxy.kickoff()
 
 def main():
 	pull.logo()
