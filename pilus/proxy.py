@@ -1,4 +1,5 @@
-import requests
+from hyper import HTTP11Connection
+from hyper import HTTP20Connection
 from flask import Flask
 from flask import request as flask_request
 
@@ -29,12 +30,13 @@ class PROXY:
 
 class PROXYRUNNER:
 
-    def __init__(self):
-        pass
+    def __init__(self, ip, port):
+        self.ip = ip
+        self.port = port
 
     def kickoff(self):
         app.run(
-            host="0.0.0.0",
-            port=8090,
+            host=self.ip,
+            port=self.port,
             debug = False
         )

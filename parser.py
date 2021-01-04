@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import yaml
 from pull import PULL
@@ -8,6 +9,7 @@ pull = PULL()
 class PARSER:
 
     DEF_PROTOTYPES = "/usr/share/proxverter/prototypes"
+    REGEX_DOMAIN   = r"^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$"
 
     def __init__(self, prs):
         self.debug = prs.debug
@@ -77,8 +79,21 @@ class PARSER:
                 _filename, 'Value Error'
             ))
 
-        if _val != 'http':
-            pull.halt('Prototype: {} Reason: {} Err: "proto" field allowed values [http,]'.format(
+        if _val != 'http' or _val != 'https':
+            pull.halt('Prototype: {} Reason: {} Err: "proto" field allowed values [http, https]'.format(
+                _filename, 'Value Error'
+            ))
+
+        return _val
+
+    def validate_field_http_version(self, _val, _filename):
+        if not _val:
+            pull.halt('Prototype: {} Reason: {} Err: "http_version" field can\'t be left empty'.format(
+                _filename, 'Value Error'
+            ))
+
+        if _val != '1.1' or _val != '2.0':
+            pull.halt('Prototype: {} Reason: {} Err: "proto" field allowed values [1.1, 2.0]'.format(
                 _filename, 'Value Error'
             ))
 
@@ -90,11 +105,17 @@ class PARSER:
                 _filename, 'Value Error'
             ))
 
-    def validate_field_subdomains(self, _val, _filename):
+    def validate_field_domains(self, _val, _filename):
         if not _val:
-            pull.halt('Prototype: {} Reason: {} Err: "subdomains" field can\'t be left empty'.format(
+            pull.halt('Prototype: {} Reason: {} Err: "domains" field can\'t be left empty'.format(
                 _filename, 'Value Error'
             ))
+
+        for _domain in _val:
+            if not re.match(self.REGEX_DOMAIN, _domain):
+                pull.halt('Prototype: {} Reason: {} Err: "{}" is an invalid domain'.format(
+                    _filename, 'Value Error', _domain
+                ))
 
         return _val
 
@@ -108,31 +129,23 @@ class PARSER:
                 'creator',
                 'name',
                 'proto',
+                'http_version',
                 'landing',
-                'subdomains',
+                'domains',
                 'substitutions',
                 'cookies',
                 'captures',
                 'authentication'
             )
 
-            for subdomain in prototype.get('subdomains'):
-                self.validate_fields(
-                    subdomain.keys(),
-                    prototype.get('filename'),
-                    'original',
-                    'substitution',
-                    'domain',
-                )
-
             for substitution in prototype.get('substitutions'):
                 self.validate_fields(
                     substitution.keys(),
                     prototype.get('filename'),
-                    'host',
+                    'domain',
                     'search',
                     'replace',
-                    'content'
+                    'content_type'
                 )
 
             for capture in prototype.get('captures'):
@@ -149,8 +162,9 @@ class PARSER:
                 self.prototypes[self.prototypes.index(prototype)]['creator'] = self.validate_field_creator(prototype.get('creator'), prototype.get('filename'))
                 self.prototypes[self.prototypes.index(prototype)]['name'] = self.validate_field_name(prototype.get('name'), prototype.get('filename'))
                 self.prototypes[self.prototypes.index(prototype)]['proto'] = self.validate_field_proto(prototype.get('proto'), prototype.get('filename'))
+                self.prototypes[self.prototypes.index(prototype)]['http_version'] = self.validate_field_http_version(prototype.get('http_version'), prototype.get('filename'))
                 self.prototypes[self.prototypes.index(prototype)]['landing'] = self.validate_field_landing(prototype.get('landing'), prototype.get('filename'))
-                self.prototypes[self.prototypes.index(prototype)]['subdomains'] = self.validate_field_subdomains(prototype.get('subdomains'), prototype.get('filename'))
+                self.prototypes[self.prototypes.index(prototype)]['domains'] = self.validate_field_domains(prototype.get('domains'), prototype.get('filename'))
             else:
                 pull.halt('Prototype: {} Reason: {} Err: Two prototypes with conflicting name "{}" detected'.format(
                     prototype.get('filename'), 'Conflicting Name', prototype.get('name')

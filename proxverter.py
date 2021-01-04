@@ -65,7 +65,7 @@ class PROXVERTER:
 				colored(prototype.get('proto'), 'white'),
 				colored(prototype.get('creator'), 'cyan'),
 				colored(prototype.get('state'), 'green'),
-				colored(str(len(prototype.get('subdomains'))), 'red'),
+				colored(str(len(prototype.get('domains'))), 'red'),
 				colored(prototype.get('hostname'), 'white')
 			]
 			toprint.append(toappend)
@@ -75,7 +75,7 @@ class PROXVERTER:
 			colored('Protocol', 'grey', attrs=['bold']),
 			colored('Creator', 'grey', attrs=['bold']),
 			colored('Status', 'grey', attrs=['bold']),
-			colored('Subdomains', 'grey', attrs=['bold']),
+			colored('Domains', 'grey', attrs=['bold']),
 			colored('Hostname', 'grey', attrs=['bold'])
 		]
 
@@ -139,7 +139,7 @@ class PROXVERTER:
 		self.STOPPER = True
 
 	def start_proxy_server(self):
-		proxy = PROXYRUNNER()
+		proxy = PROXYRUNNER(self.config_reader.get_ipaddress(), self.config_reader.get_port())
 		proxy.kickoff()
 
 def main():

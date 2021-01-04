@@ -26,7 +26,7 @@ class CONFIGWRITER(CONFIG):
         obj = configparser.ConfigParser()
         obj['configuration'] = {
             'domain': '',
-            'ipaddress': '',
+            'ipaddress': '0.0.0.0',
             'prototypes_path': '/usr/share/proxverter/prototypes',
             'port': 80,
         }
@@ -38,20 +38,20 @@ class CONFIGWRITER(CONFIG):
             obj['states'][prototype.get('name')] = 'stopped'
 
         for prototype in _prototypes:
-            obj['hostnames'][prototype.get('name')] = ''
+            obj['hostnames'][prototype.get('name')] = '{}.undefined'.format(prototype.get('name'))
 
         self.save_fresh_config(obj)
 
     def update_config(self, _prototypes):
         obj = self.get_fresh_config()
+        domain = obj['configuration']['domain'] if obj['configuration']['domain'] else 'undefined'
         states = list(obj['states'].keys())
         hostnames = list(obj['hostnames'].keys())
         for prototype in _prototypes:
             if prototype.get('name') not in states:
                 obj['states'][prototype.get('name')] = 'stopped'
 
-            if prototype.get('name') not in hostnames:
-                obj['hostnames'][prototype.get('name')] = ''
+            obj['hostnames'][prototype.get('name')] = '{}.{}'.format(prototype.get('name'), domain)
 
         self.save_fresh_config(obj)
 
@@ -86,6 +86,10 @@ class CONFIGREADER(CONFIG):
     def get_port(self):
         obj = self.get_fresh_config()
         return int(obj['configuration']['port'])
+
+    def get_ipaddress(self):
+        obj = self.get_fresh_config()
+        return obj['configuration']['ipaddress']
 
 class CONFIGURATION(CONFIG):
 

