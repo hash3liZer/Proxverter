@@ -83,6 +83,10 @@ class CONFIGREADER(CONFIG):
 
         return ''
 
+    def get_hostnames(self):
+        obj = self.get_fresh_config()
+        return obj['hostnames']
+
     def get_port(self):
         obj = self.get_fresh_config()
         return int(obj['configuration']['port'])
@@ -90,6 +94,10 @@ class CONFIGREADER(CONFIG):
     def get_ipaddress(self):
         obj = self.get_fresh_config()
         return obj['configuration']['ipaddress']
+
+    def get_domain(self):
+        obj = self.get_fresh_config()
+        return obj['configuration']['domain']
 
 class CONFIGURATION(CONFIG):
 
@@ -109,6 +117,12 @@ class CONFIGURATION(CONFIG):
             obj = re.match(self.REGEX_DOMAIN, _val[0])
             if obj:
                 self.config_writer.write_config('domain', _val[0])
+                pull.session(
+                    ('#29cc0c bold', '$ '),
+                    ('', 'Domain'),
+                    ('#29cc0c', ' => '),
+                    ('', _val[0])
+                )
             else:
                 pull.session(
                     ('#bb00c2 bold', '; '),
@@ -123,6 +137,16 @@ class CONFIGURATION(CONFIG):
             obj = re.match(self.REGEX_IPADDRESS, _val[0])
             if obj:
                 self.config_writer.write_config('ipaddress', _val[0])
+                pull.session(
+                    ('#29cc0c bold', '$ '),
+                    ('', 'IP Address'),
+                    ('#29cc0c', ' => '),
+                    ('', _val[0])
+                )
+                pull.session(
+                    ('#bb00c2 bold', '; '),
+                    ('', 'You need to restart proxverter for changes to take effect')
+                )
             else:
                 pull.session(
                     ('#bb00c2 bold', '; '),
@@ -136,6 +160,16 @@ class CONFIGURATION(CONFIG):
         if _val:
             if os.path.isdir(_val[0]):
                 self.config_writer.write_config('prototypes_path', _val[0])
+                pull.session(
+                    ('#29cc0c bold', '$ '),
+                    ('', 'Prototypes Path'),
+                    ('#29cc0c', ' => '),
+                    ('', _val[0])
+                )
+                pull.session(
+                    ('#bb00c2 bold', '; '),
+                    ('', 'You need to restart proxverter for changes to take effect')
+                )
             else:
                 pull.session(
                     ('#bb00c2 bold', '; '),
@@ -152,6 +186,16 @@ class CONFIGURATION(CONFIG):
                 _p = int(_p)
                 if _p > 0 and _p < 65536:
                     self.config_writer.write_config('port', str(_p))
+                    pull.session(
+                        ('#29cc0c bold', '$ '),
+                        ('', 'Port Number'),
+                        ('#29cc0c', ' => '),
+                        ('', _val[0])
+                    )
+                    pull.session(
+                        ('#bb00c2 bold', '; '),
+                        ('', 'You need to restart proxverter for changes to take effect')
+                    )
                 else:
                     pull.session(
                         ('#bb00c2 bold', '; '),

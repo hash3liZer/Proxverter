@@ -1,4 +1,6 @@
+from pull import PULL
 
+pull = PULL()
 
 class PROTOTYPES:
 

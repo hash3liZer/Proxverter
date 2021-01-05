@@ -116,6 +116,8 @@ class PROXVERTER:
 		elif parser.command == 'prototypes':
 			prototypes    = PROTOTYPES(parser, self)
 			prototypes.execute()
+		self.populate()
+		self.update_prototypes()
 
 	def start_terminal(self):
 		session = PromptSession()
@@ -139,7 +141,7 @@ class PROXVERTER:
 		self.STOPPER = True
 
 	def start_proxy_server(self):
-		self.proxy = PROXYRUNNER(self.config_reader.get_ipaddress(), self.config_reader.get_port(), self.prototypes)
+		self.proxy = PROXYRUNNER(self.config_reader.get_ipaddress(), self.config_reader.get_port(), self)
 		self.proxy.kickoff()
 
 def main():
