@@ -41,7 +41,7 @@ class PROXY(BaseHTTPRequestHandler):
         if not host.endswith(domain):
             self.send_response(404); return
 
-        for (prototype, hostname) in hostnames:
+        for (prototype, hostname) in hostnames.items():
             if host.endswith(hostname):
                 _param_prototype = self.get_prototype(prototype)
                 _param_domain = host.rstrip(".{}".format(hostname))
