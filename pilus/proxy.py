@@ -19,6 +19,9 @@ class PROXY(BaseHTTPRequestHandler):
             if _prototype['name'] == _name:
                 return _prototype
 
+    def custom_connection(self, target, protocol, http_version, method, url, headers):
+        conn = HTTP11Connection() if http_version == "1.1" else HTTP20Connection()
+
     def do_GET(self):
         host = self.headers.get('Host')
         domain = self.config_reader.get_domain()
@@ -44,9 +47,17 @@ class PROXY(BaseHTTPRequestHandler):
         for (prototype, hostname) in hostnames.items():
             if host.endswith(hostname):
                 _param_prototype = self.get_prototype(prototype)
-                _param_domain = host.rstrip(".{}".format(hostname))
+                _param_domain = host.replace(".{}".format(hostname), "")
                 for _param_prototype_domain in _param_prototype["domains"]:
                     if _param_domain.endswith(_param_prototype_domain):
+                        response = self.custom_connection(
+                            _param_domain,
+                            prototype.get("proto"),
+                            prototype.get("http_version"),
+                            self.command,
+                            self.path,
+                            self.headers
+                        )
                         self.send_response(200, "OK")
                         self.end_headers()
                         self.wfile.write(b"Everything Seems to be working")
