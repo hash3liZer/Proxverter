@@ -5,6 +5,8 @@ from http.server import HTTPServer
 from functools import partial
 from handlers import CONFIGREADER
 
+import socket
+
 class PROXY(BaseHTTPRequestHandler):
 
     def __init__(self, ip, port, proxverter, *args, **kwargs):
@@ -20,7 +22,16 @@ class PROXY(BaseHTTPRequestHandler):
                 return _prototype
 
     def custom_connection(self, target, protocol, http_version, method, url, headers):
-        conn = HTTP11Connection() if http_version == "1.1" else HTTP20Connection()
+        host = '{}:{}'.format(target, ('443' if protocol == 'https' else '80'))
+        conn = HTTP11Connection(host)
+        
+        try:
+            conn.request(method, url, headers=dict(headers))
+        except socket.gaierror:
+            return None
+
+        resp = conn.get_response()
+        return resp
 
     def do_GET(self):
         host = self.headers.get('Host')
@@ -50,6 +61,7 @@ class PROXY(BaseHTTPRequestHandler):
                 _param_domain = host.replace(".{}".format(hostname), "")
                 for _param_prototype_domain in _param_prototype["domains"]:
                     if _param_domain.endswith(_param_prototype_domain):
+                        prototype = self.get_prototype(prototype)
                         response = self.custom_connection(
                             _param_domain,
                             prototype.get("proto"),
@@ -58,9 +70,13 @@ class PROXY(BaseHTTPRequestHandler):
                             self.path,
                             self.headers
                         )
-                        self.send_response(200, "OK")
-                        self.end_headers()
-                        self.wfile.write(b"Everything Seems to be working")
+                        if response:
+                            self.send_response(response.status, response.reason)
+                            for (header, value) in response.headers.items():
+                                self.send_header(header, value)
+                            self.wfile.write(response.read())
+                        else:
+                            self.send_response(404)
                         return
 
         self.send_response(404)
