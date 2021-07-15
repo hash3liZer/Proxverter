@@ -1,3 +1,1 @@
-tabulate
-termcolor
-twisted==20.3.0
+proxy.py
