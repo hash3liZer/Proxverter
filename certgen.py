@@ -33,13 +33,17 @@ class Generator:
         self.cert.sign(self.key, 'sha512')
 
     def gen_key(self, key_file):
+        key_file = open(key_file, 'wt')
         try:
             key_file.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key).decode("utf-8"))
         except TypeError:
             key_file.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key))
+        key_file.close()
 
     def gen_cert(self, cert_file):
+        cert_file = open(cert_file, 'wt')
         try:
             cert_file.write(crypto.dump_certificate(crypto.FILETYPE_PEM, self.cert).decode("utf-8"))
         except TypeError:
             cert_file.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key))
+        cert_file.close()

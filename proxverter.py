@@ -6,6 +6,8 @@ import winreg
 import certgen
 import tempfile
 import ipaddress
+import os
+import logging
 import multiprocessing
 
 class Proxy:
@@ -80,16 +82,29 @@ class Proxy:
 
 class Proxverter:
 
-    def __init__(self, ip, port, is_https=False):
+    def __init__(self, ip, port, is_https=False, verbose=False, supress_errors=False):
         self.ip_address = ip
         self.port       = port
         self.is_https   = is_https
+        self.verbose    = verbose
+        self.supress_errors = supress_errors
         self.proxy      = Proxy(self.ip_address, self.port)
 
         ## Generating necessary data for certificates and private key
         if self.is_https:
             self.certgen = certgen.Generator()
             self.certgen.generate()
+
+        ## Setting verbose mode
+        if not self.verbose:
+            logging.disable(logging.DEBUG)
+            logging.disable(logging.INFO)
+            logging.disable(logging.WARNING)
+            logging.disable(logging.CRITICAL)
+            #logging.disable(logging.ERROR)
+
+        if self.supress_errors:
+            logging.disable(logging.ERROR)
 
     def gen_key(self, twrapper):
         if not self.is_https:
@@ -109,34 +124,33 @@ class Proxverter:
 
         self.certgen.gen_cert(twrapper)
 
-    def join(self):
+    def join(self, priv_key=None, cert_file=None):
         multiprocessing.freeze_support()
         self.proxy.engage()
 
         try:
             if not self.is_https:
-                '''
                 proxy.main(
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port
                 )
-                '''
             else:
-                ktfile = tempfile.TemporaryFile()
-                ctfile = tempfile.TemporaryFile()
+                if not priv_key or not cert_file:
+                    raise ValueError("Both priv_key and cert_file are required to run in TLS Interception mode")
 
-                self.gen_key(ktfile)
-                self.gen_cert(ctfile)
+                if not os.path.isfile(priv_key):
+                    raise FileNotFoundError("Given private key file doesn't exists")
 
-                '''
+                if not os.path.isfile(cert_file):
+                    raise FileNotFoundError("Given certificate file doesn't exists")
+
                 proxy.main(
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
-                    #ca_key_file = ktfile,
-                    #ca_cert_file = ctfile,
-                    #ca_signing_key_file = ktfile
+                    ca_key_file = priv_key,
+                    ca_cert_file = cert_file,
+                    ca_signing_key_file = priv_key
                 )
-                '''
 
         except KeyboardInterrupt:
             pass

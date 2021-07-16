@@ -7,6 +7,9 @@ media/
 
 # C extensions
 *.so
+*.pem
+*.crt
+*.key
 
 # Distribution / packaging
 .Python
