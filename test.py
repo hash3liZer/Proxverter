@@ -5,11 +5,6 @@ import proxverter
 import logging
 import multiprocessing
 
-logging.disable(logging.DEBUG)
-logging.disable(logging.WARNING)
-logging.disable(logging.CRITICAL)
-logging.disable(logging.INFO)
-
 if __name__ == "__main__":
     multiprocessing.freeze_support()
 
@@ -29,4 +24,4 @@ if __name__ == "__main__":
     p.gen_key(fl1)
     p.gen_cert(fl2)
 
-    p.join(".\key.pem", ".\cert.pem")
+    p.join(fl1, fl2)
