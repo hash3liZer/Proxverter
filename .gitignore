@@ -10,6 +10,8 @@ media/
 *.pem
 *.crt
 *.key
+*.pfx
+*.p12
 
 # Distribution / packaging
 .Python

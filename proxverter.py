@@ -5,7 +5,9 @@ import ctypes
 import winreg
 import certgen
 import tempfile
+import shutil
 import ipaddress
+import platform
 import os
 import logging
 import multiprocessing
@@ -101,7 +103,6 @@ class Proxverter:
             logging.disable(logging.INFO)
             logging.disable(logging.WARNING)
             logging.disable(logging.CRITICAL)
-            #logging.disable(logging.ERROR)
 
         if self.supress_errors:
             logging.disable(logging.ERROR)
@@ -124,8 +125,28 @@ class Proxverter:
 
         self.certgen.gen_cert(twrapper)
 
-    def join(self, priv_key=None, cert_file=None):
+    def gen_pfx(self, twrapper):
+        if not self.is_https:
+            raise ValueError("PFX can only be generated for https mode")
+
+        if not hasattr(self, 'certgen'):
+            raise AttributeError('No certgen attribute was found for Proxverter class')
+
+        self.certgen.gen_pfx(twrapper)
+
+    def clear(self):
+        if platform.system().lower() == "windows":
+            dirm = os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), ".proxy")
+            if os.path.isdir(dirm):
+                shutil.rmtree(dirm)
+        elif platform.system().lower() == "linux":
+            dirm = os.path.join(os.getenv("HOMEPATH"), ".proxy")
+            if os.path.isdir(dirm):
+                shutil.rmtree(dirm)
+
+    def join(self, priv_key=None, cert_file=None, pkey=None):
         multiprocessing.freeze_support()
+        self.clear()
         self.proxy.engage()
 
         try:
@@ -149,7 +170,7 @@ class Proxverter:
                     port = self.port,
                     ca_key_file = priv_key,
                     ca_cert_file = cert_file,
-                    ca_signing_key_file = priv_key
+                    ca_signing_key_file = pkey
                 )
 
         except KeyboardInterrupt:
