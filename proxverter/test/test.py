@@ -19,8 +19,8 @@ if __name__ == "__main__":
     fl2 = os.path.join(tempfile.gettempdir(), 'cert.crt')
     fl3 = "certificate.pfx"
 
-    p.gen_key(fl1)
-    p.gen_cert(fl2)
-    p.gen_pfx(fl3)
+    #p.gen_key(fl1)
+    #p.gen_cert(fl2)
+    #p.gen_pfx(fl3)
 
-    p.join(fl1, fl2, fl1)
+    p.join(fl1, fl2)
