@@ -6,26 +6,37 @@ import shutil
 import ipaddress
 import platform
 import os
+import pathlib
 import logging
 import multiprocessing
 
+## Package Imports
 from . import certgen
 from . import sysproxy
 
 class Proxverter:
+    '''
+    The main Proxverter class that accepts creds, setup system wide caches and run proxy servers.
+    '''
 
-    def __init__(self, ip, port, is_https=False, verbose=False, supress_errors=False):
+    def __init__(self, ip, port, is_https=False, new_certs=False, sysprox=False, verbose=False, suppress_errors=False):
         self.ip_address = ip
         self.port       = port
         self.is_https   = is_https
+        self.new_certs  = new_certs
+        self.sysprox    = sysprox
         self.verbose    = verbose
-        self.supress_errors = supress_errors
+        self.suppress_errors = suppress_errors
+        self.home_paths = self.__fetch_home_paths()
         self.proxy      = sysproxy.Proxy(self.ip_address, self.port)
 
         ## Generating necessary data for certificates and private key
         if self.is_https:
-            self.certgen = certgen.Generator()
-            self.certgen.generate()
+            self.__gen_certs()
+
+        ## Setting system wide proxy
+        if self.sysprox:
+            self.set_sysprox()
 
         ## Setting verbose mode
         if not self.verbose:
@@ -34,50 +45,79 @@ class Proxverter:
             logging.disable(logging.WARNING)
             logging.disable(logging.CRITICAL)
 
-        if self.supress_errors:
+        ## Suppressing errors on demand
+        if self.suppress_errors:
             logging.disable(logging.ERROR)
 
-    def gen_key(self, twrapper):
-        if not self.is_https:
-            raise ValueError("Private key can only be generated for https mode")
+    def __fetch_home_paths(self):
+        rtval = {
+            'dirname': os.path.join(pathlib.Path.home(), ".proxverter"),
+            'certname': os.path.join(dirname, "cert.pem"),
+            'privname': os.path.join(dirname, "priv.pem"),
+            'pfxname': os.path.join(dirname, "cert.pfx")
+        }
 
-        if not hasattr(self, 'certgen'):
-            raise AttributeError('No certgen attribute was found for Proxverter class')
+        if not os.path.isdir(rtval['dirname']):
+            os.makedirs(rtval['dirname'])
 
-        self.certgen.gen_key(twrapper)
+        return rtval
 
-    def gen_cert(self, twrapper):
-        if not self.is_https:
-            raise ValueError("Certificate can only be generated for https mode")
+    def __gen_certs(self):
+        if not os.path.isfile(self.home_paths['certname']) \
+           or not os.path.isfile(sef.home_paths['privname']) \
+           or not os.path.isfile(self.home_paths['pfxname']) \
+           or self.new_certs:
 
-        if not hasattr(self, 'certgen'):
-            raise AttributeError('No certgen attribute was found for Proxverter class')
+           gen = certgen.Generator()
+           gen.generate()
+           gen.gen_key(self.home_paths['privname'])
+           gen.gen_cert(self.home_paths['certname'])
+           gen.gen_pfx(self.home_paths['pfxname'])
 
-        self.certgen.gen_cert(twrapper)
+    def __clear(self):
+        try:
+            shutil.rmtree(
+                os.path.join(pathlib.Path.home(), ".proxy")
+            )
+        except FileNotFoundError:
+            pass
 
-    def gen_pfx(self, twrapper):
-        if not self.is_https:
-            raise ValueError("PFX can only be generated for https mode")
-
-        if not hasattr(self, 'certgen'):
-            raise AttributeError('No certgen attribute was found for Proxverter class')
-
-        self.certgen.gen_pfx(twrapper)
-
-    def clear(self):
-        if platform.system().lower() == "windows":
-            dirm = os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), ".proxy")
-            if os.path.isdir(dirm):
-                shutil.rmtree(dirm)
-        elif platform.system().lower() == "linux":
-            dirm = os.path.join(os.getenv("HOMEPATH"), ".proxy")
-            if os.path.isdir(dirm):
-                shutil.rmtree(dirm)
-
-    def join(self, priv_key=None, cert_file=None, plugins=[]):
-        multiprocessing.freeze_support()
-        self.clear()
+    def set_sysprox(self):
         self.proxy.engage()
+
+    def del_sysprox(self):
+        self.proxy.cleanup()
+
+    def fetch_pkey(self, destination):
+        if not self.is_https:
+            raise ValueError("Private keys are only implemented in SSL Mode")
+
+        if not os.path.isfile(self.home_paths['privname']):
+            raise FileNotFoundError("No private key file was found in home directory. It has either been modified or deleted. ")
+
+        shutil.copyfile(self.home_paths['privname'], destination)
+
+    def fetch_cert(self, destination):
+        if not self.is_https:
+            raise ValueError("Certificates are only implemented in SSL Mode")
+
+        if not os.path.isfile(self.home_paths['certname']):
+            raise FileNotFoundError("No cert file was found in home directory. It has either been modified or deleted. ")
+
+        shutil.copyfile(self.home_paths['certname'], destination)
+
+    def fetch_pfx(self, destination):
+        if not self.is_https:
+            raise ValueError("PFXs are only implemented in SSL Mode")
+
+        if not os.path.isfile(self.home_paths['certname']):
+            raise FileNotFoundError("No pfx file was found in home directory. It has either been modified or deleted. ")
+
+        shutil.copyfile(self.home_paths['pfxname'], destination)
+
+    def engage(self):
+        multiprocessing.freeze_support()
+        self.__clear()
 
         try:
             if not self.is_https:
@@ -108,4 +148,5 @@ class Proxverter:
         except KeyboardInterrupt:
             pass
 
-        self.proxy.cleanup()
+        if self.sysprox:
+            self.del_sysprox()
