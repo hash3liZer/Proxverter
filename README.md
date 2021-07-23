@@ -77,7 +77,7 @@ The TLS interception for SSL mode can be tested using this command:
 $ curl -L -x 127.0.0.1:8081 https://www.google.com
 ```
 
-### Interception with System wide proxy
+### Interception with automatic system wide proxy
 By default, when you call the `engage` method, proxvetrer will not automatically create a system wide proxy cache or in other words, you will have to setup the proxy yourself for the software you are targeting.
 
 However, if you do want the proxverter to handle this case for you and create a system wide proxy cache i.e. traffic from the host will pass through our proxverter instance, you will have to pass the argument `sysprox=True` to `Proxverter` instance: 
@@ -86,6 +86,7 @@ However, if you do want the proxverter to handle this case for you and create a 
 import proxverter
 prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, sysprox=True)
 
+prox.engage()
 ...
 ```
 
