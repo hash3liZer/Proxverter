@@ -19,7 +19,7 @@ class Proxverter:
     The main Proxverter class that accepts creds, setup system wide caches and run proxy servers.
     '''
 
-    def __init__(self, ip, port, is_https=False, new_certs=False, sysprox=False, verbose=False, suppress_errors=False):
+    def __init__(self, ip, port, is_https=False, new_certs=False, sysprox=False, verbose=False, suppress_errors=False, plugins=[]):
         self.ip_address = ip
         self.port       = port
         self.is_https   = is_https
@@ -27,6 +27,7 @@ class Proxverter:
         self.sysprox    = sysprox
         self.verbose    = verbose
         self.suppress_errors = suppress_errors
+        self.plugins    = plugins
         self.home_paths = self.__fetch_home_paths()
         self.proxy      = sprox.Proxy(self.ip_address, self.port)
 
@@ -65,7 +66,7 @@ class Proxverter:
 
     def __gen_certs(self):
         if not os.path.isfile(self.home_paths['certname']) \
-           or not os.path.isfile(sef.home_paths['privname']) \
+           or not os.path.isfile(self.home_paths['privname']) \
            or not os.path.isfile(self.home_paths['pfxname']) \
            or self.new_certs:
 
@@ -125,25 +126,22 @@ class Proxverter:
                 proxy.main(
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
-                    plugins = plugins
+                    plugins = self.plugins
                 )
             else:
-                if not priv_key or not cert_file:
-                    raise ValueError("Both priv_key and cert_file are required to run in TLS Interception mode")
-
-                if not os.path.isfile(priv_key):
+                if not os.path.isfile(self.home_paths['privname']):
                     raise FileNotFoundError("Given private key file doesn't exists")
 
-                if not os.path.isfile(cert_file):
+                if not os.path.isfile(self.home_paths['certname']):
                     raise FileNotFoundError("Given certificate file doesn't exists")
 
                 proxy.main(
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
-                    ca_key_file = priv_key,
-                    ca_cert_file = cert_file,
-                    ca_signing_key_file = priv_key,
-                    plugins = plugins
+                    ca_key_file = self.home_paths['privname'],
+                    ca_cert_file = self.home_paths['certname'],
+                    ca_signing_key_file = self.home_paths['privname'],
+                    plugins = self.plugins
                 )
 
         except KeyboardInterrupt:
