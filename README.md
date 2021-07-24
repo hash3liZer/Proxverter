@@ -163,6 +163,8 @@ sprox.engage()
 sprox.cleanup()
 ```
 
-## Custom Plugins
-Plugins are the building block of proxverter or in other words the library named: `proxy.py`. These plugins can be used side by side with the main proxy to provide extra functionality to the current working proxy instance. 
-
+## Known Issues
+<ul>
+  <li>Certificate wrapping errors when running in SSL mode. These errors can be ignored for now as they don't actually pose any misfunctionality at the moment.</li>
+  <li>Suppressing errors when needed.</li>
+</ul>
