@@ -6,6 +6,7 @@ Cross platform system wide proxy server & TLS Interception library for Python. B
 ## Features
 <ul>
   <li><b>Cross Platform</b>: The library is cross platform and can be used on windows, linux and macos</li>
+  <li><b>HTTP Interception</b>: You can intercept, capture and cache HTTP traffic through this. </li>
   <li><b>TLS Interception</b>: It's a wrapper against lightweight <code>proxy.py</code> by <a href="https://github.com/abhinavsingh/">@abhinavsingh</a> which provides many features and TLS-interception being one of them</li>
   <li><b>Custom Plugins</b>: Through the API you can provide custom plugins to intercept and modify data as per your needs. Documentation regarding plugin development is given below</li>
   <li><b>System wide proxy</b>: The tool provides system wide proxy. You just have to call the API and the library will do the rest</li>
@@ -27,7 +28,7 @@ $ python3 setup.py install
 ## Getting Started
 After installation, you should be able to import `proxverter` on your python terminal. As of now, the library has 2 major sub modules which are: `certgen` and `sysprox`. The use of both of them is disucussed in the later sections. 
 
-### TLS Interception in non-SSL Mode
+### HTTP Interception
 ```python
 import proxverter
 prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, verbose=True)    ## Verbose mode will also show logs
@@ -41,7 +42,7 @@ This will start proxy server in the background. Now, you can verify the working 
 $ curl -L -x 127.0.0.1:8081 http://www.google.com
 ```
 
-### TLS Interception in SSL Mode
+### TLS Interception (HTTPS)
 ```python
 import proxverter
 prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, is_https=True, verbose=True)    ## Verbose mode will also show logs
