@@ -1,3 +1,3 @@
 
-class BasePlugin:
+class PluginBase:
     pass

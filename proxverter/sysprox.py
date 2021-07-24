@@ -1,4 +1,5 @@
 import platform
+import socket
 
 class mac_proxy:
     '''
@@ -30,16 +31,19 @@ class win_proxy:
     '''
 
     def __init__(self, ip_address, port):
-        import winreg
-        import ctypes
+        self.glob_import('winreg')
+        self.glob_import('ctypes')
 
         self.regkey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Internet Settings', 0, winreg.KEY_ALL_ACCESS)
         self.internet_option_refresh = 37
         self.internet_option_settings_changed = 39
         self.internet_set_option = ctypes.windll.Wininet.InternetSetOptionW
 
-        sef.ip_address = ip_address
+        self.ip_address = ip_address
         self.port      = port
+
+    def glob_import(self, module_name):
+        globals()[module_name] = __import__(module_name)
 
     def refresh(self):
         self.internet_set_option(0, self.internet_option_settings_changed, 0, 0)

@@ -12,7 +12,7 @@ import multiprocessing
 
 ## Package Imports
 from . import certgen
-from . import sysproxy
+from . import sysprox as sprox
 
 class Proxverter:
     '''
@@ -28,7 +28,7 @@ class Proxverter:
         self.verbose    = verbose
         self.suppress_errors = suppress_errors
         self.home_paths = self.__fetch_home_paths()
-        self.proxy      = sysproxy.Proxy(self.ip_address, self.port)
+        self.proxy      = sprox.Proxy(self.ip_address, self.port)
 
         ## Generating necessary data for certificates and private key
         if self.is_https:
@@ -50,8 +50,9 @@ class Proxverter:
             logging.disable(logging.ERROR)
 
     def __fetch_home_paths(self):
+        dirname = os.path.join(pathlib.Path.home(), ".proxverter")
         rtval = {
-            'dirname': os.path.join(pathlib.Path.home(), ".proxverter"),
+            'dirname': dirname,
             'certname': os.path.join(dirname, "cert.pem"),
             'privname': os.path.join(dirname, "priv.pem"),
             'pfxname': os.path.join(dirname, "cert.pfx")
