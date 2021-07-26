@@ -1,5 +1,6 @@
 import platform
 import socket
+import subprocess
 import fileinput
 import os
 import re
@@ -30,8 +31,15 @@ class lin_proxy:
         self.ip_address = ip_address
         self.port       = str(port)
 
-        if os.geteuid() != 0:
-            raise OSError("This library requires root privileges to run")
+        out = subprocess.call("gsettings list-recursively org.gnome.system.proxy", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        if not out:
+            if os.geteuid() == 0:
+                raise OSError("This library doesn't work with root privileges")
+            self.gnome = True
+        else:
+            if os.geteuid() != 0:
+                raise OSError("This library requires root privileges")
+            self.gnome = False
 
         if not os.path.isfile(self.aptconf):
             fl = open(self.aptconf, 'w')
@@ -115,6 +123,14 @@ class lin_proxy:
             fl.write("https_proxy=https://"+self.ip_address+":"+self.port+"\n")
             fl.write("ftp_proxy=ftp://"+self.ip_address+":"+self.port+"\n")
 
+    def set_gsettings(self):
+        subprocess.call(f"gsettings set org.gnome.system.proxy mode 'manual'", shell=True)
+        subprocess.call(f"gsettings set org.gnome.system.proxy.http host '{self.ip_address}'", shell=True)
+        subprocess.call(f"gsettings set org.gnome.system.proxy.http port {self.port}", shell=True)
+        subprocess.call(f"gsettings set org.gnome.system.proxy.https host '{self.ip_address}'", shell=True)
+        subprocess.call(f"gsettings set org.gnome.system.proxy.https port {self.port}", shell=True)
+        subprocess.call(f"gsettings set org.gnome.system.proxy use-same-proxy true", shell=True)
+
     def rem_wget_vars(self):
         with open(self.wgetconf, "r+") as f:
             new_f = f.readlines()
@@ -155,17 +171,26 @@ class lin_proxy:
             f.truncate()
             f.close()
 
+    def rem_gsettings(self):
+        subprocess.call(f"gsettings set org.gnome.system.proxy mode 'none'", shell=True)
+
     def join(self):
-        self.set_env_vars()
-        self.set_apt_vars()
-        self.set_bash_vars()
-        self.set_wget_vars()
+        if self.gnome:
+            self.set_gsettings()
+        else:
+            self.set_env_vars()
+            self.set_apt_vars()
+            self.set_bash_vars()
+            self.set_wget_vars()
 
     def del_proxy(self):
-        self.rem_wget_vars()
-        self.rem_bash_vars()
-        self.rem_apt_vars()
-        self.rem_env_vars()
+        if self.gnome:
+            self.rem_gsettings()
+        else:
+            self.rem_wget_vars()
+            self.rem_bash_vars()
+            self.rem_apt_vars()
+            self.rem_env_vars()
 
 class win_proxy:
     '''
