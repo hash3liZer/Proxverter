@@ -12,7 +12,7 @@ Cross platform system wide proxy server & TLS Interception library for Python. B
   <li><b>System wide proxy</b>: The tool provides system wide proxy. You just have to call the API and the library will do the rest</li>
   <li><b>Certificate Generation</b>: You can generate self-signed certificate which is basically a wrapper around <code>pyopenssl</code></li>
   <li><b>Flexible</b>: The underlying code of Proxverter is documented and quite easy to understand and edit. The code can further be developer and reused easily. </li>
-  <li><b>Lightweight</b>: Thanks to `proxy.py`, unlike `mitmproxy` and other interception tools, proxverter is lightweight and doesn't really carry that much space around. </li>
+  <li><b>Lightweight</b>: Thanks to <code>proxy.py</code>, unlike <code>mitmproxy</code> and other interception tools, proxverter is lightweight and doesn't really carry that much space around. </li>
   <li><b>Modifying data on the fly</b>: Since the library support TLS interception, the plugins can be used to modify data on the fly or reject any kind of request. </li>
 </ul>
 
@@ -167,4 +167,9 @@ sprox.cleanup()
 <ul>
   <li>Certificate wrapping errors when running in SSL mode. These errors can be ignored for now as they don't actually pose any misfunctionality at the moment.</li>
   <li>Suppressing errors when needed.</li>
+</ul>
+
+## What's Expected
+<ul>
+  <li>More desktop environments are to be supported in the upcoming version for linux. Currently the script deploys proxy settings for <code>Gsettings/Gconf</code> and <code>environment</code> variables. Other desktop environments including MATE and XFCE are not currently supported</li>
 </ul>
