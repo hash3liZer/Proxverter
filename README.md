@@ -17,7 +17,12 @@ Cross platform system wide proxy server & TLS Interception library for Python. B
 </ul>
 
 ## Installation
-### Latest version from GitHub
+### Stable Release
+```bash
+$ pip3 install proxverter
+```
+
+### Development Version
 
 ```bash
 $ git clone https://github.com/hash3liZer/Proxverter.git
