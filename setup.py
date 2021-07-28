@@ -20,7 +20,7 @@ setuptools.setup(
         "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
         "Operating System :: OS Independent",
     ],
-    packages=['proxverter', 'proxverter.test', 'proxverter.plugins'],
+    packages=['proxverter', 'proxverter.plugins'],
     python_requires=">=3.7",
     install_requires=[
         'pyopenssl',
