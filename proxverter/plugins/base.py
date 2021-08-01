@@ -1,44 +1,42 @@
+from proxy.http.parser import HttpParser, httpParserTypes, httpParserStates
 from proxy.http.proxy import HttpProxyBasePlugin
 
-## The class to be inherited
-class PluginBase(HttpProxyBasePlugin):
+class PluginBase(HttpProxyBasePlugin, ABC):
+    '''Modified HttpProxyBasePlugin from proxy.py. Provides more functionality'''
 
-    def name(self):
-        '''
-            Returns the name of plugin
-        '''
-        return "Plugin Base"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request  = HttpParser(httpParserTypes.REQUEST_PARSER)
+        self.response = HttpParser(httpParserTypes.RESPONSE_PARSER)
 
-    ## Returns the description of plugin
-    def description(self):
-        '''
-            Returns the description of plugin
-        '''
-        return "This is base proxy plugin which is to be inherited by custom coded plugins for proxverter"
-
-    def before_upstream_connection(self, request):
-        '''
-            Function to be called before the upstream connection is established.
-            Remember this is the part where the connection has not yet established.
-            And the data is still in manipulation phase.
-
-            You can edit the request here
-        '''
-        return request
+    def before_upstream_connection(self, connection):
+        return self.intercept_connection(connection)
 
     def handle_client_request(self, request):
-        '''
-            Function to be called while the data is being sent to the upstream server.
-            Remember this is the part where the connection has been established.
-            And we are looking to modify on the ongoing request.
-        '''
-        return request
+        rtval = self.intercept_request(request)
+        self.request = rtval
+        return rtval
 
-    def handle_upstream_chunk(self, response):
-        '''
-            Response received from the server
-        '''
-        return response
+    def handle_upstream_chunk(self, chunk):
+        self.response.parse(response.tobytes())
+        if self.response.state = httpParserStates.COMPLETE:
+            self.intercept_response(self.response)
+        return self.intercept_chunk(chunk)
 
     def on_upstream_connection_close(self):
-        return None
+        self.close_connection()
+
+    def intercept_connection(self, conn):
+        pass
+
+    def intercept_request(self, request):
+        pass
+
+    def intercept_chunk(self, chunk):
+        return chunk
+
+    def intercept_response(self, response):
+        pass
+
+    def close_connection(self):
+        pass

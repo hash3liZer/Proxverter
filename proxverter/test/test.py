@@ -9,6 +9,7 @@ from proxverter.plugins import PluginBase
 
 class ProxyCheck(PluginBase):
     def before_upstream_connection(self, request):
+        self.brequest = request
         towrite = pydoc.render_doc(request, renderer=pydoc.plaintext)
         fl = open("/tmp/filer.txt", "w")
         fl.write(towrite)
@@ -28,6 +29,7 @@ class ProxyCheck(PluginBase):
         return request
 
     def handle_client_request(self, request):
+        self.arequest = request
         towrite = pydoc.render_doc(request, renderer=pydoc.plaintext)
         fl = open("/tmp/filer2.txt", "w")
         fl.write(towrite)
@@ -47,8 +49,22 @@ class ProxyCheck(PluginBase):
         return request
 
     def handle_upstream_chunk(self, response):
+        #self.response.parse(response)
+
         fl = open("/tmp/filer3.txt", "w")
+        fl.write(str(self.arequest.url) + "\n")
+        fl.write(str(self.arequest.method) + "\n")
+        fl.write(str(self.arequest.code) + "\n")
+        fl.write(str(self.arequest.reason) + "\n")
+        fl.write(str(self.arequest.version) + "\n")
+        fl.write(str(self.arequest.host) + "\n")
+        fl.write(str(self.arequest.port) + "\n")
+        fl.write(str(self.arequest.path) + "\n")
+        fl.write(str(self.arequest.headers) + "\n\n")
+        fl.write(str(self.arequest.body) + "\n\n\n\n\n")
+
         fl.write(str(response.tobytes()))
+        fl.close()
 
         return response
 

@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.1",
     author="hash3liZer",
     author_email="admin@shellvoide.com",
-    description="Reverse proxy & TLS Interception library for Python. Basically a wrapper around proxy.py and OpenSSL allowing easy integration and certificate generation on command (Under Development)",
+    description="Cross platform system wide proxy server & TLS Interception library for Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/hash3liZer/Proxverter",
