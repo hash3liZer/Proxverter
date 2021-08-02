@@ -19,14 +19,13 @@ class Proxverter:
     The main Proxverter class that accepts creds, setup system wide caches and run proxy servers.
     '''
 
-    def __init__(self, ip, port, is_https=False, new_certs=False, sysprox=False, verbose=False, suppress_errors=False, plugins=[]):
+    def __init__(self, ip, port, is_https=False, new_certs=False, sysprox=False, verbose=False, plugins=[]):
         self.ip_address = ip
         self.port       = port
         self.is_https   = is_https
         self.new_certs  = new_certs
         self.sysprox    = sysprox
         self.verbose    = verbose
-        self.suppress_errors = suppress_errors
         self.plugins    = plugins
         self.home_paths = self.__fetch_home_paths()
         self.proxy      = sprox.Proxy(self.ip_address, self.port)
@@ -41,14 +40,7 @@ class Proxverter:
 
         ## Setting verbose mode
         if not self.verbose:
-            logging.disable(logging.DEBUG)
-            logging.disable(logging.INFO)
-            logging.disable(logging.WARNING)
             logging.disable(logging.CRITICAL)
-
-        ## Suppressing errors on demand
-        if self.suppress_errors:
-            logging.disable(logging.ERROR)
 
     def __fetch_home_paths(self):
         dirname = os.path.join(pathlib.Path.home(), ".proxverter")
@@ -117,7 +109,7 @@ class Proxverter:
 
         shutil.copyfile(self.home_paths['pfxname'], destination)
 
-    def engage(self):
+    def engage(self, certfile=None, privfile=None):
         multiprocessing.freeze_support()
         self.__clear()
 
@@ -129,18 +121,25 @@ class Proxverter:
                     plugins = self.plugins
                 )
             else:
-                if not os.path.isfile(self.home_paths['privname']):
-                    raise FileNotFoundError("Given private key file doesn't exists")
+                if not certfile or not privfile:
+                    if not os.path.isfile(self.home_paths['privname']):
+                        raise FileNotFoundError("Given private key file doesn't exists")
 
-                if not os.path.isfile(self.home_paths['certname']):
-                    raise FileNotFoundError("Given certificate file doesn't exists")
+                    if not os.path.isfile(self.home_paths['certname']):
+                        raise FileNotFoundError("Given certificate file doesn't exists")
+                else:
+                    if not os.path.isfile(certfile):
+                        raise FileNotFoundError("Given private key file doesn't exists")
+
+                    if not os.path.isfile(privfile):
+                        raise FileNotFoundError("Given certificate file doesn't exists")
 
                 proxy.main(
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
-                    ca_key_file = self.home_paths['privname'],
-                    ca_cert_file = self.home_paths['certname'],
-                    ca_signing_key_file = self.home_paths['privname'],
+                    ca_key_file = self.home_paths['privname'] if not privfile else privfile,
+                    ca_cert_file = self.home_paths['certname'] if not certfile else certfile,
+                    ca_signing_key_file = self.home_paths['privname'] if not privfile else privfile,
                     plugins = self.plugins
                 )
 
