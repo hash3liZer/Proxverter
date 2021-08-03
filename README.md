@@ -1,5 +1,7 @@
 ![banner](https://user-images.githubusercontent.com/29171692/126787146-54fd3b6c-883b-4990-8cef-ba8816584bc4.png)
 
+<p align="center"><img src="https://img.shields.io/static/v1?label=requirements&message=up%20to%20date&color=green&logo=list"/> <img src="https://img.shields.io/static/v1?label=python&message=%3E=3.7&color=blue&logo=python" /> <img src="https://img.shields.io/static/v1?label=docs&message=80%25&color=orange&logo=doc" /> <img src="https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-lightgrey" /></p>
+
 <h1 align="center">Proxverter</h1>
 Cross platform system wide proxy server & TLS Interception library for Python. Basically a wrapper around proxy.py and PyOpenSSL allowing easy integration and certificate generation on command. 
 
