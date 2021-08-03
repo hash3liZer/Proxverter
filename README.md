@@ -36,7 +36,7 @@ After installation, you should be able to import `proxverter` on your python ter
 ### HTTP Interception
 ```python
 import proxverter
-prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, verbose=True)    ## Verbose mode will also show logs
+prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, verbose=False)     ## Verbose mode will also show logs
 prox.set_sysprox()                                                         ## Set system wide proxy
 prox.engage()                                                              ## Press CTRL+C to move further
 prox.del_sysprox()                                                         ## Remove system wide proxy
@@ -50,7 +50,7 @@ $ curl -L -x 127.0.0.1:8081 http://www.google.com
 ### TLS Interception (HTTPS)
 ```python
 import proxverter
-prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, is_https=True, verbose=True)    ## Verbose mode will also show logs
+prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, is_https=True, verbose=False)    ## Verbose mode will also show logs
 
 ## Get certificate
 prox.fetch_cert("/tmp/certificate.pem")                      
@@ -167,6 +167,39 @@ sprox.engage()
 ## Removing system wide proxy
 sprox.cleanup()
 ```
+
+## Plugins
+Now, plugins are an important part of **Proxverter**. In previous section, we only viewed how to tunnel system traffic through our proxy. But how to actually modify traffic? This is where plugins come into play. Before we further dive deep into plugins. I once again want to to thank abhinavsingh for all the major work on his project `proxy.py`. Let's start creating a new plugin. The plugin class is to be inherited by `PluginBase` and passed to `proxverter` instance:
+
+```python
+import proxverter
+from proxverter.plugins import PluginBase
+
+class CustomPlugin(PluginBase):
+
+  def name(self):
+    return "Custom Plugin for testing"
+    
+p = proxverter.Proxverter(
+      "127.0.0.1",
+      8800,
+      is_https=True,
+      plugins=[
+        CustomPlugin
+      ]
+)
+
+p.engage()
+```
+
+There are 5 major functions that we are going to see throughout the working of plugins and these are: 
+<ul>
+  <li>Intercepting Requests: <code>intercept_request</code></li>
+  <li>Intercepting Response: <code>intercept_response</code></li>
+  <li>Intercepting Connection: <code>intercept_connection</code></li>
+  <li>Intercepting Chunk: <code>intercept_chunk</code></li>
+  <li>Connection Close: <code>close_connection</code></li>
+</ul>
 
 ## Known Issues
 <ul>
