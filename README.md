@@ -262,7 +262,7 @@ In the lifecycle of a request, the final call would be `close_connection`. Altou
 
 class CustomPlugin(PluginBase):
 
-  def close_connection(self, chunk):
+  def close_connection(self):
     
     ## Request
     if self.request.method == "POST" and \
