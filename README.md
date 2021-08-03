@@ -201,6 +201,77 @@ There are 5 major functions that we are going to see throughout the working of p
   <li>Connection Close: <code>close_connection</code></li>
 </ul>
 
+### Intercepting Requests
+For requests we have `intercept_request` method. The function accepts one argument which is a `proxy.http.parser.HttpParser` instance and can be modified or changed at this stage. The argument holds different attributes and who's complete implementation can be seen through `help` in python terminal. 
+
+The function must return orignal/modified request object. Returning `None` will drop the request. Here's an example where we add a custom header to the request:
+```python
+class CustomPlugin(PluginBase):
+
+  def intercept_request(self, request):
+    request.add_header("Proxy", "Proxverter (@hash3liZer)")
+    return request
+```
+
+### Intercepting Responses
+For responses, we have `intercept_response` method. The function accepts one argument which is a `proxy.http.parser.HttpParser` instance. Unlike request, the response can't be modified at this stage. Even if it is modified, it won't mean anything. The function returns nothing and is called in the lifecycle of request when all the chunks from the server has been received.
+
+Here's an example where we store the body of 404 response in a file: 
+```python
+class CustomPlugin(PluginBase):
+
+  def intercept_response(self, response):
+    if response.code == b"404":
+      fl = open("response.txt", "a")
+      fl.write(str(response.body))
+      fl.close()
+```
+
+### Intercepting Connection
+Now, sometimes, you want to capture a connection instead of the sent request. This is the function where you can do that. The connection is the initial stage where the user tries to establish a connection with the targetted server. For TLS, you will have `CONNECT` requests here. The function accepts one argument which is a `proxy.http.parser.HttpParser` instance. 
+
+The function must return orignal/modified connection request. Here's an example where we only allow connections to google and drop otherwise:
+```python
+class CustomPlugin(PluginBase):
+
+  def intercept_connection(self, conn_request):
+    if "google.com" in conn_request.host:
+      return conn_request
+      
+     return None  ## Drop the connection
+```
+
+### Intercepting Chunks
+Previously, we saw how to intercept response. But we can't modify it there. To intercept a response, we need to do it when a chunk is received. The function has one argument which is of type `bytes` and can be modified. This chunk from here will then be forwarded to the client. 
+
+The function must return orignal/modified response chunk. Returning `None` will drop the connection response at any point. This is an example, where we modify the response of each request. 
+```python
+class CustomPlugin(PluginBase):
+
+  def intercept_connection(self, chunk):
+    
+    if self.response.state == 6   ## All chunks have been received
+      return b"Response from proxverter"
+      
+    return b""  ## Append empty chunks
+```
+
+### Close Connection
+In the lifecycle of a request, the final call would be `close_connection`. Altough, this function is merely for nothing and can be ignored for all but still you would find it quite useful in analysis scenarios. At this point of the cycle, the `self.request` and `self.response` attributes can be accessed to see what was sent and what was received in the cycle. 
+```python
+
+class CustomPlugin(PluginBase):
+
+  def close_connection(self, chunk):
+    
+    ## Request
+    if self.request.method == "POST" and \
+        self.request.host == "www.google.com" and \
+        self.response.code == b"200":
+        
+        pass
+```
+
 ## Known Issues
 <ul>
   <li>Certificate wrapping errors when running in SSL mode. These errors can be ignored for now as they don't actually pose any misfunctionality at the moment.</li>
