@@ -20,10 +20,7 @@ class PluginBase(HttpProxyBasePlugin):
     def handle_upstream_chunk(self, chunk):
         self.response.parse(chunk.tobytes())
         if self.response.state == httpParserStates.COMPLETE:
-            rtval = self.intercept_response(self.response)
-            if isinstance(rtval, HttpParser):
-                return memoryview(rtval.build_response())
-            return rtval
+            self.intercept_response(self.response)
         return self.intercept_chunk(chunk)
 
     def on_upstream_connection_close(self):
@@ -66,18 +63,19 @@ class PluginBase(HttpProxyBasePlugin):
     def intercept_chunk(self, chunk):
         '''
             Intercept chunks received from the server. The `chunk`
-            argument represents built-in memoryview object from
+            argument represents built-in `bytes` object from
             python.
 
             Intercept response in chunks received from server.
             It is not in the final form yet. So, you can the received
-            bytes by calling: `chunk.tobytes()`
+            response here
 
             You will see mostly plain bytes in this section with what's
             incoming. This chunk from this function is then appended
             to response in `interept_response`.
 
             Modified/Orignal `chunk` must be returned in this function.
+            Empty bytes object will append nothing to response
             Return `None` will cancel the response at that very moment.
         '''
         return chunk
@@ -88,14 +86,14 @@ class PluginBase(HttpProxyBasePlugin):
             argument represents HttpParser from proxy.http.parser.
 
             Intercept the response combined from the chunks received in
-            `intercept_chunk` method. The response can be modified at
-            this stage.
+            `intercept_chunk` method. The response can only be viewed
+            at this stage. It is not to be modified here
 
-            You will have a complete response at this stage which can be
-            modified or changed.
+            NOTE: Changing or returning response here won't have any effect
+            on the orignal response. For modifying response see
+            `intercept_response` method.
 
-            Modified/Orignal `response` must be returned in this function.
-            Returning `None` will not send the response at this moment
+            This function doesn't return anything.
         '''
         return response
 

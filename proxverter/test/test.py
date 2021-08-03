@@ -10,18 +10,16 @@ from proxverter.plugins import PluginBase
 class ProxyCheck(PluginBase):
 
     def intercept_request(self, request):
-        fl = open("/tmp/filer1.txt", "w")
+        fl = open(os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), "Desktop\\temp\\filer1.tt"), "w")
         fl.write(str(request.url))
         fl.close()
 
         return request
 
-    def interept_response(self, response):
-        fl = open("/tmp/filer2.txt", "w")
-        fl.write(str(response.body))
+    def intercept_response(self, response):
+        fl = open(os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), "Desktop\\temp\\filer2.txt"), "w")
+        fl.write(str(response.code))
         fl.close()
-
-        return response
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
@@ -36,8 +34,7 @@ if __name__ == "__main__":
         ]
     )
 
-    p.fetch_cert("/home/hash3lizer/Desktop/cert.crt")
-    p.fetch_pfx("/home/hash3lizer/Desktop/cert.pfx")
+    p.fetch_pfx(os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), "Desktop\\temp\\cert.pfx"))
 
     p.set_sysprox()
     p.engage()
