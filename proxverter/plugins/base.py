@@ -21,7 +21,7 @@ class PluginBase(HttpProxyBasePlugin):
         self.response.parse(chunk.tobytes())
         if self.response.state == httpParserStates.COMPLETE:
             self.intercept_response(self.response)
-        return self.intercept_chunk(chunk)
+        return memoryview(self.intercept_chunk(chunk.tobytes()))
 
     def on_upstream_connection_close(self):
         self.close_connection()
