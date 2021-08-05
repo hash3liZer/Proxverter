@@ -29,13 +29,14 @@ if __name__ == "__main__":
         8700,
         is_https=True,
         verbose=True,
+        new_certs=True,
         plugins=[
             ProxyCheck
         ]
     )
 
-    p.fetch_pfx(os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), "Desktop\\temp\\cert.pfx"))
+    #p.fetch_pfx(os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), "Desktop\\temp\\cert.pfx"))
 
-    p.set_sysprox()
-    p.engage()
-    p.del_sysprox()
+    #p.set_sysprox()
+    #p.engage()
+    #p.del_sysprox()

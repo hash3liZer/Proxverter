@@ -1,6 +1,9 @@
 from OpenSSL import crypto, SSL
 import OpenSSL
 import random
+import os
+import platform
+import subprocess
 
 class Generator:
 
@@ -64,3 +67,38 @@ class Generator:
         pfx_file = open(pfx_file, 'wb')
         pfx_file.write(p12.export())
         pfx_file.close()
+
+class Importer:
+
+    def __init__(self, home_paths):
+        self.home_paths = home_paths
+
+        if not os.path.isfile(self.home_paths['privname']):
+            raise FileNotFoundError("No private key file was found in home directory. It has either been modified or deleted. ")
+
+        if not os.path.isfile(self.home_paths['certname']):
+            raise FileNotFoundError("No cert file was found in home directory. It has either been modified or deleted. ")
+
+        if not os.path.isfile(self.home_paths['pfxname']):
+            raise FileNotFoundError("No pfx file was found in home directory. It has either been modified or deleted. ")
+
+    def __import_windows(self):
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        comm = subprocess.call(
+            'powershell.exe "Import-Certificate -FilePath \'{}\' -CertStoreLocation cert:\LocalMachine\Root\"'.format(self.home_paths['pfxname'])
+        )
+        if not comm:
+            raise SystemError("Error while importing certificate ")
+
+    def cimport(self):
+        plat = platform.system().lower()
+        if plat == "windows":
+            self.__import_windows()
+        elif plat == "linux":
+            pass
+        elif plat == "macos":
+            pass
+        else:
+            raise OSError("Unable to determine the underlying operating system")

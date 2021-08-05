@@ -4,7 +4,6 @@ import proxy
 import tempfile
 import shutil
 import ipaddress
-import platform
 import os
 import pathlib
 import logging
@@ -30,15 +29,12 @@ class Proxverter:
         self.home_paths = self.__fetch_home_paths()
         self.proxy      = sprox.Proxy(self.ip_address, self.port)
 
-        ## Generating necessary data for certificates and private key
         if self.is_https:
             self.__gen_certs()
 
-        ## Setting system wide proxy
         if self.sysprox:
             self.set_sysprox()
 
-        ## Setting verbose mode
         if not self.verbose:
             logging.disable(logging.CRITICAL)
 
@@ -104,13 +100,19 @@ class Proxverter:
         if not self.is_https:
             raise ValueError("PFXs are only implemented in SSL Mode")
 
-        if not os.path.isfile(self.home_paths['certname']):
+        if not os.path.isfile(self.home_paths['pfxname']):
             raise FileNotFoundError("No pfx file was found in home directory. It has either been modified or deleted. ")
 
         shutil.copyfile(self.home_paths['pfxname'], destination)
 
+    def import_cert(self):
+        if not self.is_https:
+            raise ValueError("PFXs are only implemented in SSL Mode")
+
+        imp = certgen.Importer(self.home_paths)
+        imp.cimport()
+
     def engage(self, certfile=None, privfile=None):
-        multiprocessing.freeze_support()
         self.__clear()
 
         try:
