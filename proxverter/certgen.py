@@ -156,8 +156,9 @@ class Importer:
     def cimport(self):
         plat = platform.system().lower()
         if plat == "windows":
-            #rtval = self.__import_windows()
+            rtval = self.__import_windows()
             self.__config_wn_firefox()
+            return rtval
         elif plat == "linux":
             pass
         elif plat == "macos":
