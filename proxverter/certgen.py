@@ -83,6 +83,34 @@ class Importer:
         if not os.path.isfile(self.home_paths['pfxname']):
             raise FileNotFoundError("No pfx file was found in home directory. It has either been modified or deleted. ")
 
+    def __config_wn_firefox(self):
+        import winreg
+        import ctypes
+
+        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+        if not is_admin:
+            raise PermissionError("Configuring firefox requires admin privileges")
+
+        try:
+            tkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\firefox.exe")
+            path = winreg.QueryValueEx(tkey, 'Path')[0]
+        except:
+            return -1
+
+        autoconfig = os.path.join(path, 'defaults/pref/autoconfig.js')
+        proxconfig = os.path.join(path, 'proxverter.cfg')
+
+        fl = open(autoconfig, 'w')
+        fl.write('pref("general.config.filename", "proxverter.cfg");\n')
+        fl.write('pref("general.config.obscure_value", 0);\n')
+        fl.close()
+
+        fl = open(proxconfig, 'w')
+        fl.write('//\n')
+        fl.write('lockPref("network.proxy.type", 5);\n')
+        fl.write('lockPref("security.enterprise_roots.enabled", true);\n')
+        fl.close()
+
     def __import_windows(self):
         import ctypes
 
@@ -128,7 +156,8 @@ class Importer:
     def cimport(self):
         plat = platform.system().lower()
         if plat == "windows":
-            return self.__import_windows()
+            #rtval = self.__import_windows()
+            self.__config_wn_firefox()
         elif plat == "linux":
             pass
         elif plat == "macos":

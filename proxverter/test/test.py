@@ -35,7 +35,7 @@ if __name__ == "__main__":
         ]
     )
 
-    print(p.import_cert())
+    p.import_cert()
 
     #p.fetch_pfx(os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), "Desktop\\temp\\cert.pfx"))
 
