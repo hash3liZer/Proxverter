@@ -29,11 +29,13 @@ if __name__ == "__main__":
         8700,
         is_https=True,
         verbose=True,
-        new_certs=True,
+        new_certs=False,
         plugins=[
             ProxyCheck
         ]
     )
+
+    print(p.import_cert())
 
     #p.fetch_pfx(os.path.join(os.getenv("HOMEDRIVE"), os.getenv("HOMEPATH"), "Desktop\\temp\\cert.pfx"))
 

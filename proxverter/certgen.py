@@ -1,6 +1,7 @@
 from OpenSSL import crypto, SSL
 import OpenSSL
 import random
+import re
 import os
 import platform
 import subprocess
@@ -83,19 +84,51 @@ class Importer:
             raise FileNotFoundError("No pfx file was found in home directory. It has either been modified or deleted. ")
 
     def __import_windows(self):
+        import ctypes
+
+        is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+        if not is_admin:
+            raise PermissionError("Importing certificate requires admin privileges")
+
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-        comm = subprocess.call(
-            'powershell.exe "Import-Certificate -FilePath \'{}\' -CertStoreLocation cert:\LocalMachine\Root\"'.format(self.home_paths['pfxname'])
+        comm = subprocess.check_output(
+            'powershell.exe "Get-PfxCertificate -FilePath {}"'.format(self.home_paths['pfxname']),
+            shell=True,
+            startupinfo=startupinfo,
+            stdin=subprocess.PIPE
         )
-        if not comm:
-            raise SystemError("Error while importing certificate ")
+
+        thumbprint = comm.split(b"\r\n")[3].split(b" ")[0].decode()
+
+        comm = subprocess.check_output(
+            'powershell.exe "Test-Path (Join-Path Cert:\LocalMachine\Root\ {})"'.format(thumbprint),
+            shell=True,
+            startupinfo=startupinfo,
+            stdin=subprocess.PIPE
+        )
+
+        if comm.strip() == b"False":
+            comm = subprocess.call(
+                'powershell.exe "Import-PfxCertificate -FilePath \'{}\' -CertStoreLocation cert:\LocalMachine\Root\"'.format(self.home_paths['pfxname']),
+                shell=True,
+                startupinfo=startupinfo,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE
+            )
+            if comm:
+                raise SystemError("Error while importing certificate ")
+
+            return 0
+        else:
+            return 1
 
     def cimport(self):
         plat = platform.system().lower()
         if plat == "windows":
-            self.__import_windows()
+            return self.__import_windows()
         elif plat == "linux":
             pass
         elif plat == "macos":

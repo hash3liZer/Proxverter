@@ -110,7 +110,7 @@ class Proxverter:
             raise ValueError("PFXs are only implemented in SSL Mode")
 
         imp = certgen.Importer(self.home_paths)
-        imp.cimport()
+        return imp.cimport()
 
     def engage(self, certfile=None, privfile=None):
         self.__clear()
