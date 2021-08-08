@@ -5,6 +5,7 @@ import tempfile
 import shutil
 import ipaddress
 import os
+import socket
 import pathlib
 import logging
 import multiprocessing
@@ -28,6 +29,7 @@ class Proxverter:
         self.plugins    = plugins
         self.home_paths = self.__fetch_home_paths()
         self.proxy      = sprox.Proxy(self.ip_address, self.port)
+        self.__check_connection()
 
         if self.is_https:
             self.__gen_certs()
@@ -37,6 +39,16 @@ class Proxverter:
 
         if not self.verbose:
             logging.disable(logging.CRITICAL)
+
+    def __check_connection(self):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.bind(( self.ip_address, self.port ))
+            s.close()
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     def __fetch_home_paths(self):
         dirname = os.path.join(pathlib.Path.home(), ".proxverter")

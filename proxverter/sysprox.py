@@ -258,19 +258,6 @@ class Proxy:
         self.ip_address = ip_address
         self.port = port
 
-    def check_connection(self):
-        '''
-            Checks if the given ip and port are available to be binded on the system
-        '''
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.bind(( self.ip_address, self.port ))
-            s.close()
-            return True
-        except Exception as e:
-            print(e)
-            return False
-
     def get_prox_instance(self):
         plat = platform.system().lower()
         if plat == "windows":
@@ -288,9 +275,6 @@ class Proxy:
         '''
             Setup system wide proxy.
         '''
-
-        if not self.check_connection():
-            raise ValueError(f"Unable to establish connection on {self.ip_address}:{self.port}")
 
         prox = self.get_prox_instance()
         prox.join()
