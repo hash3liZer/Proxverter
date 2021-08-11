@@ -5,7 +5,7 @@ with open("README-pypi.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="proxverter",
-    version="0.2",
+    version="0.3",
     author="hash3liZer",
     author_email="admin@shellvoide.com",
     description="Cross platform system wide proxy server & TLS Interception library for Python",

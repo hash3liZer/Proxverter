@@ -47,7 +47,6 @@ class Proxverter:
             s.close()
             return True
         except Exception as e:
-            print(e)
             return False
 
     def __fetch_home_paths(self):
