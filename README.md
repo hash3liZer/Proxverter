@@ -19,6 +19,15 @@ Cross platform system wide proxy server & TLS Interception library for Python. B
 </ul>
 
 ## Installation
+### Requirements
+Proxverter requires `openssl` for reading and managing private & public keys in certificates. Actually this is a dependency in `proxy.py` and we are hoping to have it removed soon with the usage of `pyopenssl`. Install openssl first:
+```
+$ choco install openssl      ## Windows
+$ apt install openssl        ## Debian
+$ yum install openssl        ## CentOS
+$ brew install openssl       ## Mac OS
+```
+
 ### Stable Release
 ```bash
 $ pip3 install proxverter
