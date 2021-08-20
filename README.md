@@ -107,6 +107,20 @@ prox.engage()
 ...
 ```
 
+### Auto Import Certificate
+**NOTE**: (Windows Only)
+
+In the above section, we actually fetched the certificate using `fetch_cert` method and then imported it in system keychain for the proxy to be intercepted. Right? Now, proxverter can import this certificate into the system keychain automatically. This method is currently only supported for windows platform. 
+
+Note that, it only import the certificate in system keychain which means that every software which uses certificate from the system root store will work but eventually you still will have to import certificate in softwares which don't. An example is Firefox. 
+
+```python
+import proxverter
+prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, is_https=True)
+
+prox.import_cert()
+```
+
 ### Verbose mode
 Let's talk about logs from `proxy.py` tool. By default when the proxverter instance is created, all the logs are suppressed. However, you will be able to see the errors if occured any from `proxy.py`. For this we have argument: `verbose`. If you want to see the all the logs especially from `proxy.py`, you can set `verbose=True` in proxverter instance: 
 
