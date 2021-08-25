@@ -15,6 +15,7 @@ Cross platform system wide proxy server & TLS Interception library for Python. B
   <li><b>Certificate Generation</b>: You can generate self-signed certificate which is basically a wrapper around <code>pyopenssl</code></li>
   <li><b>Flexible</b>: The underlying code of Proxverter is documented and quite easy to understand and edit. The code can further be developer and reused easily. </li>
   <li><b>Lightweight</b>: Thanks to <code>proxy.py</code>, unlike <code>mitmproxy</code> and other interception tools, proxverter is lightweight and doesn't really carry that much space around. </li>
+  <li><b>Logging</b>: Proper logging support with verbose mode. The modes when combined can be used to suppress errors as well</li>
   <li><b>Modifying data on the fly</b>: Since the library support TLS interception, the plugins can be used to modify data on the fly or reject any kind of request. </li>
 </ul>
 
@@ -128,6 +129,14 @@ Let's talk about logs from `proxy.py` tool. By default when the proxverter insta
 import proxverter
 prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, verbose=True)
 prox.engage()
+```
+
+### Logging
+By default, all the logging even the errors will be pushed to standard console. And that might mess up your terminal or whatever output you are trying to have. You can redirect all the ouptut from `prox.py` to your given file using `log_file` argument:
+```python
+import proxverter, os
+prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, verbose=True, log_file=os.devnull)
+prox.engage()  ## No output whatsoever, even errors will be redirectd to devnull
 ```
 
 ## Generating Self Signed Certificates
