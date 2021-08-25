@@ -19,13 +19,14 @@ class Proxverter:
     The main Proxverter class that accepts creds, setup system wide caches and run proxy servers.
     '''
 
-    def __init__(self, ip, port, is_https=False, new_certs=False, sysprox=False, verbose=False, plugins=[]):
+    def __init__(self, ip, port, is_https=False, new_certs=False, sysprox=False, verbose=False, log_file=None, plugins=[]):
         self.ip_address = ip
         self.port       = port
         self.is_https   = is_https
         self.new_certs  = new_certs
         self.sysprox    = sysprox
         self.verbose    = verbose
+        self.log_file   = log_file
         self.plugins    = plugins
         self.home_paths = self.__fetch_home_paths()
         self.proxy      = sprox.Proxy(self.ip_address, self.port)
@@ -131,7 +132,8 @@ class Proxverter:
                 proxy.main(
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
-                    plugins = self.plugins
+                    plugins = self.plugins,
+                    log_file = self.log_file
                 )
             else:
                 if not certfile or not privfile:
@@ -153,7 +155,8 @@ class Proxverter:
                     ca_key_file = self.home_paths['privname'] if not privfile else privfile,
                     ca_cert_file = self.home_paths['certname'] if not certfile else certfile,
                     ca_signing_key_file = self.home_paths['privname'] if not privfile else privfile,
-                    plugins = self.plugins
+                    plugins = self.plugins,
+                    log_file = self.log_file
                 )
 
         except KeyboardInterrupt:
