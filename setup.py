@@ -35,9 +35,9 @@ setuptools.setup(
     ],
     packages=['proxverter', 'proxverter.plugins'],
     python_requires=">=3.7",
-    install_requires=open('requirements.txt', 'r').read().strip().split(),
-    keywords=(
+    install_requires=open('requirements.txt', 'r').read().strip().split("\n"),
+    keywords=[
         'http, https, proxy, transparent proxy, web proxy, https proxy',
         'python3 web proxy, python3 https'
-    )
+    ]
 )
