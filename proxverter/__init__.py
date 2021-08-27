@@ -11,6 +11,7 @@ import logging
 import multiprocessing
 
 ## Package Imports
+from . import installer
 from . import certgen
 from . import sysprox as sprox
 
