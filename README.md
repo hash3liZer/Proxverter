@@ -3,7 +3,7 @@
 <p align="center"><img src="https://img.shields.io/static/v1?label=requirements&message=up%20to%20date&color=green&logo=list"/> <img src="https://img.shields.io/static/v1?label=python&message=%3E=3.7&color=blue&logo=python" /> <img src="https://img.shields.io/static/v1?label=docs&message=80%25&color=orange&logo=doc" /> <img src="https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-lightgrey" /></p>
 
 <h1 align="center">Proxverter</h1>
-Cross platform system wide proxy server & TLS Interception library for Python. Basically a wrapper around proxy.py and PyOpenSSL allowing easy integration and certificate generation on command. 
+Cross platform system wide proxy server & TLS Interception library for Python. Basically a wrapper around proxy.py and PyOpenSSL allowing easy integration and certificate generation on command.
 
 ## Features
 <ul>
@@ -43,7 +43,7 @@ $ python3 setup.py install
 ```
 
 ## Getting Started
-After installation, you should be able to import `proxverter` on your python terminal. As of now, the library has 2 major sub modules which are: `certgen` and `sysprox`. The use of both of them is disucussed in the later sections. 
+After installation, you should be able to import `proxverter` on your python terminal. As of now, the library has 2 major sub modules which are: `certgen` and `sysprox`. The use of both of them is disucussed in the later sections.
 
 ### HTTP Interception
 ```python
@@ -72,19 +72,19 @@ prox.engage()                                                              ## Pr
 prox.del_sysprox()                                                         ## Remove system wide proxy
 ```
 
-The line `prox.fetch_cert` will generate a certificate at `/tmp/certificate.pem`. You need to import this certifcate in system root keychain or browser ceritifcates in order to capture TLS traffic. 
+The line `prox.fetch_cert` will generate a certificate at `/tmp/certificate.pem`. You need to import this certifcate in system root keychain or browser ceritifcates in order to capture TLS traffic.
 
-Sometimes, you might want to get the `pfx` version of the certifcate to be imported in windows root keychain. You can get the `pfx` using following method: 
+Sometimes, you might want to get the `pfx` version of the certifcate to be imported in windows root keychain. You can get the `pfx` using following method:
 ```python
 prox.fetch_pfx("/tmp/certificate.pfx")
 ```
 
-Altough, there would be no need of private key for this to capture the traffic. However, if for some reason, you need private key as well. You can call the following method: 
+Altough, there would be no need of private key for this to capture the traffic. However, if for some reason, you need private key as well. You can call the following method:
 ```python
 prox.fetch_pkey("/tmp/key.pem")
 ```
 
-The certificates and key are only generated for the first time the library is called. After that when you call the `engage` method, the previous certificates will be used. However, if you want to refresh certifcates and have newly generated certs, you have to pass the option `new_certs=True` to `Proxverter` instance: 
+The certificates and key are only generated for the first time the library is called. After that when you call the `engage` method, the previous certificates will be used. However, if you want to refresh certifcates and have newly generated certs, you have to pass the option `new_certs=True` to `Proxverter` instance:
 
 ```python
 prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, new_certs=True)
@@ -98,7 +98,7 @@ $ curl -L -x 127.0.0.1:8081 https://www.google.com
 ### Interception with automatic system wide proxy
 By default, when you call the `engage` method, proxvetrer will not automatically create a system wide proxy cache or in other words, you will have to setup the proxy yourself for the software you are targeting.
 
-However, if you do want the proxverter to handle this case for you and create a system wide proxy cache i.e. traffic from the host will pass through our proxverter instance, you will have to pass the argument `sysprox=True` to `Proxverter` instance: 
+However, if you do want the proxverter to handle this case for you and create a system wide proxy cache i.e. traffic from the host will pass through our proxverter instance, you will have to pass the argument `sysprox=True` to `Proxverter` instance:
 
 ```python
 import proxverter
@@ -111,9 +111,9 @@ prox.engage()
 ### Auto Import Certificate
 **NOTE**: (Windows Only)
 
-In the above section, we actually fetched the certificate using `fetch_cert` method and then imported it in system keychain for the proxy to be intercepted. Right? Now, proxverter can import this certificate into the system keychain automatically. This method is currently only supported for windows platform. 
+In the above section, we actually fetched the certificate using `fetch_cert` method and then imported it in system keychain for the proxy to be intercepted. Right? Now, proxverter can import this certificate into the system keychain automatically. This method is currently only supported for windows platform.
 
-Note that, it only import the certificate in system keychain which means that every software which uses certificate from the system root store will work but eventually you still will have to import certificate in softwares which don't. An example is Firefox. 
+Note that, it only import the certificate in system keychain which means that every software which uses certificate from the system root store will work but eventually you still will have to import certificate in softwares which don't. An example is Firefox.
 
 ```python
 import proxverter
@@ -123,7 +123,7 @@ prox.import_cert()
 ```
 
 ### Verbose mode
-Let's talk about logs from `proxy.py` tool. By default when the proxverter instance is created, all the logs are suppressed. However, you will be able to see the errors if occured any from `proxy.py`. For this we have argument: `verbose`. If you want to see the all the logs especially from `proxy.py`, you can set `verbose=True` in proxverter instance: 
+Let's talk about logs from `proxy.py` tool. By default when the proxverter instance is created, all the logs are suppressed. However, you will be able to see the errors if occured any from `proxy.py`. For this we have argument: `verbose`. If you want to see the all the logs especially from `proxy.py`, you can set `verbose=True` in proxverter instance:
 
 ```python
 import proxverter
@@ -131,16 +131,8 @@ prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, verbose=True)
 prox.engage()
 ```
 
-### Logging
-By default, all the logging even the errors will be pushed to standard console. And that might mess up your terminal or whatever output you are trying to have. You can redirect all the ouptut from `prox.py` to your given file using `log_file` argument:
-```python
-import proxverter, os
-prox = proxverter.Proxverter(ip="127.0.0.1", port=8081, verbose=True, log_file=os.devnull)
-prox.engage()  ## No output whatsoever, even errors will be redirectd to devnull
-```
-
 ## Generating Self Signed Certificates
-Besides from TLS Interception, another purpose of `proxverter` is to generate certificates on command. This is different from the certificates and keys generated by `Proxverter` instance. 
+Besides from TLS Interception, another purpose of `proxverter` is to generate certificates on command. This is different from the certificates and keys generated by `Proxverter` instance.
 
 ```python
 from proxverter.certgen import Generator
@@ -153,7 +145,7 @@ gen.gen_cert("/tmp/cert.pem")   ## Private Key
 gen.gen_pfx("/tmp/cert.pfx")    ## Certificate in PFX format to be be imported in windows keychain
 ```
 
-This would generate credentials for a single certificate. If you need another certificate, you will need to create a separate instance. For example, if you want to generate 2 certificates, then: 
+This would generate credentials for a single certificate. If you need another certificate, you will need to create a separate instance. For example, if you want to generate 2 certificates, then:
 
 ```python
 from proxverter.certgen import Generator
@@ -165,7 +157,7 @@ gen2 = Generator()
 ```
 
 ### Self Signed certificate with custom fields
-A certificate accepts a number of fields like email, country, unit name etc. By default all these fields are left empty. However, you can specify these fields in `Generator` instance. 
+A certificate accepts a number of fields like email, country, unit name etc. By default all these fields are left empty. However, you can specify these fields in `Generator` instance.
 
 ```python
 from proxverter.certgen import Generator
@@ -185,7 +177,7 @@ gen.generate()
 ```
 
 ## System wide proxy
-Like other usages, `proxverter` can also be used to create a system wide proxy. This allows the host to forward all the traffic of the host to the proxy that was mentioned in system wide proxy instance. 
+Like other usages, `proxverter` can also be used to create a system wide proxy. This allows the host to forward all the traffic of the host to the proxy that was mentioned in system wide proxy instance.
 
 ```python
 from proxverter.sysprox import Proxy
@@ -213,7 +205,7 @@ class CustomPlugin(PluginBase):
 
   def name(self):
     return "Custom Plugin for testing"
-    
+
 p = proxverter.Proxverter(
       "127.0.0.1",
       8800,
@@ -226,7 +218,7 @@ p = proxverter.Proxverter(
 p.engage()
 ```
 
-There are 5 major functions that we are going to see throughout the working of plugins and these are: 
+There are 5 major functions that we are going to see throughout the working of plugins and these are:
 <ul>
   <li>Intercepting Requests: <code>intercept_request</code></li>
   <li>Intercepting Response: <code>intercept_response</code></li>
@@ -236,7 +228,7 @@ There are 5 major functions that we are going to see throughout the working of p
 </ul>
 
 ### Intercepting Requests
-For requests we have `intercept_request` method. The function accepts one argument which is a `proxy.http.parser.HttpParser` instance and can be modified or changed at this stage. The argument holds different attributes and who's complete implementation can be seen through `help` in python terminal. 
+For requests we have `intercept_request` method. The function accepts one argument which is a `proxy.http.parser.HttpParser` instance and can be modified or changed at this stage. The argument holds different attributes and who's complete implementation can be seen through `help` in python terminal.
 
 The function must return orignal/modified request object. Returning `None` will drop the request. Here's an example where we add a custom header to the request:
 ```python
@@ -250,7 +242,7 @@ class CustomPlugin(PluginBase):
 ### Intercepting Responses
 For responses, we have `intercept_response` method. The function accepts one argument which is a `proxy.http.parser.HttpParser` instance. Unlike request, the response can't be modified at this stage. Even if it is modified, it won't mean anything. The function returns nothing and is called in the lifecycle of request when all the chunks from the server has been received.
 
-Here's an example where we store the body of 404 response in a file: 
+Here's an example where we store the body of 404 response in a file:
 ```python
 class CustomPlugin(PluginBase):
 
@@ -262,7 +254,7 @@ class CustomPlugin(PluginBase):
 ```
 
 ### Intercepting Connection
-Now, sometimes, you want to capture a connection instead of the sent request. This is the function where you can do that. The connection is the initial stage where the user tries to establish a connection with the targetted server. For TLS, you will have `CONNECT` requests here. The function accepts one argument which is a `proxy.http.parser.HttpParser` instance. 
+Now, sometimes, you want to capture a connection instead of the sent request. This is the function where you can do that. The connection is the initial stage where the user tries to establish a connection with the targetted server. For TLS, you will have `CONNECT` requests here. The function accepts one argument which is a `proxy.http.parser.HttpParser` instance.
 
 The function must return orignal/modified connection request. Here's an example where we only allow connections to google and drop otherwise:
 ```python
@@ -271,38 +263,38 @@ class CustomPlugin(PluginBase):
   def intercept_connection(self, conn_request):
     if "google.com" in conn_request.host:
       return conn_request
-      
+
      return None  ## Drop the connection
 ```
 
 ### Intercepting Chunks
-Previously, we saw how to intercept response. But we can't modify it there. To intercept a response, we need to do it when a chunk is received. The function has one argument which is of type `bytes` and can be modified. This chunk from here will then be forwarded to the client. 
+Previously, we saw how to intercept response. But we can't modify it there. To intercept a response, we need to do it when a chunk is received. The function has one argument which is of type `bytes` and can be modified. This chunk from here will then be forwarded to the client.
 
-The function must return orignal/modified response chunk. Returning `None` will drop the connection response at any point. This is an example, where we modify the response of each request. 
+The function must return orignal/modified response chunk. Returning `None` will drop the connection response at any point. This is an example, where we modify the response of each request.
 ```python
 class CustomPlugin(PluginBase):
 
   def intercept_connection(self, chunk):
-    
+
     if self.response.state == 6   ## All chunks have been received
       return b"Response from proxverter"
-      
+
     return b""  ## Append empty chunks
 ```
 
 ### Close Connection
-In the lifecycle of a request, the final call would be `close_connection`. Altough, this function is merely for nothing and can be ignored for all but still you would find it quite useful in analysis scenarios. At this point of the cycle, the `self.request` and `self.response` attributes can be accessed to see what was sent and what was received in the cycle. 
+In the lifecycle of a request, the final call would be `close_connection`. Altough, this function is merely for nothing and can be ignored for all but still you would find it quite useful in analysis scenarios. At this point of the cycle, the `self.request` and `self.response` attributes can be accessed to see what was sent and what was received in the cycle.
 ```python
 
 class CustomPlugin(PluginBase):
 
   def close_connection(self):
-    
+
     ## Request
     if self.request.method == "POST" and \
         self.request.host == "www.google.com" and \
         self.response.code == b"200":
-        
+
         pass
 ```
 

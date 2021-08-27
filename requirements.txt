@@ -1,2 +1,2 @@
 pyopenssl
-proxy.py @ git+https://github.com/hash3liZer/proxy.py@proxywrap#egg=proxy.py
+proxy.py
