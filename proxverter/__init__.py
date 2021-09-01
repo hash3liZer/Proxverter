@@ -27,8 +27,8 @@ class Proxverter:
         self.new_certs  = new_certs
         self.sysprox    = sysprox
         self.verbose    = verbose
-        self.log_file   = log_file
         self.plugins    = plugins
+        self.inargs     = []
         self.home_paths = self.__fetch_home_paths()
         self.proxy      = sprox.Proxy(self.ip_address, self.port)
         self.__check_connection()
@@ -41,6 +41,10 @@ class Proxverter:
 
         if not self.verbose:
             logging.disable(logging.CRITICAL)
+
+        if log_file:
+            self.inargs.append('--log-file')
+            self.inargs.append(log_file)
 
     def __check_connection(self):
         try:
@@ -131,10 +135,10 @@ class Proxverter:
         try:
             if not self.is_https:
                 proxy.main(
+                    self.inargs,
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
-                    plugins = self.plugins,
-                    log_file = self.log_file
+                    plugins = self.plugins
                 )
             else:
                 if not certfile or not privfile:
@@ -151,13 +155,13 @@ class Proxverter:
                         raise FileNotFoundError("Given certificate file doesn't exists")
 
                 proxy.main(
+                    self.inargs,
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
                     ca_key_file = self.home_paths['privname'] if not privfile else privfile,
                     ca_cert_file = self.home_paths['certname'] if not certfile else certfile,
                     ca_signing_key_file = self.home_paths['privname'] if not privfile else privfile,
-                    plugins = self.plugins,
-                    log_file = self.log_file
+                    plugins = self.plugins
                 )
 
         except KeyboardInterrupt:
