@@ -2,9 +2,11 @@ import platform
 import socket
 import subprocess
 import fileinput
+import multiprocessing
 import os
 import re
 import sys
+import pwd
 
 class mac_proxy:
     '''
@@ -32,14 +34,9 @@ class lin_proxy:
         self.port       = str(port)
 
         out = subprocess.call("gsettings list-recursively org.gnome.system.proxy", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        if not out:
-            if os.geteuid() == 0:
-                raise OSError("This library doesn't work with root privileges")
-            self.gnome = True
-        else:
-            if os.geteuid() != 0:
-                raise OSError("This library requires root privileges")
-            self.gnome = False
+        self.gnome = True if not out else False
+        if os.geteuid() != 0:
+            raise OSError("This library requires root privileges")
 
         if not os.path.isfile(self.aptconf):
             fl = open(self.aptconf, 'w')
@@ -124,12 +121,27 @@ class lin_proxy:
             fl.write("ftp_proxy=ftp://"+self.ip_address+":"+self.port+"\n")
 
     def set_gsettings(self):
-        subprocess.call(f"gsettings set org.gnome.system.proxy mode 'manual'", shell=True)
-        subprocess.call(f"gsettings set org.gnome.system.proxy.http host '{self.ip_address}'", shell=True)
-        subprocess.call(f"gsettings set org.gnome.system.proxy.http port {self.port}", shell=True)
-        subprocess.call(f"gsettings set org.gnome.system.proxy.https host '{self.ip_address}'", shell=True)
-        subprocess.call(f"gsettings set org.gnome.system.proxy.https port {self.port}", shell=True)
-        subprocess.call(f"gsettings set org.gnome.system.proxy use-same-proxy true", shell=True)
+        def caller(ip_address, port, uid, gid, dhome, logname):
+            os.setgid(gid)
+            os.setuid(uid)
+            os.environ['HOME']    = dhome
+            os.environ['LOGNAME'] = logname
+
+            subprocess.call(f"gsettings set org.gnome.system.proxy mode 'manual'", shell=True)
+            subprocess.call(f"gsettings set org.gnome.system.proxy.http host '{ip_address}'", shell=True)
+            subprocess.call(f"gsettings set org.gnome.system.proxy.http port {port}", shell=True)
+            subprocess.call(f"gsettings set org.gnome.system.proxy.https host '{ip_address}'", shell=True)
+            subprocess.call(f"gsettings set org.gnome.system.proxy.https port {port}", shell=True)
+            subprocess.call(f"gsettings set org.gnome.system.proxy use-same-proxy true", shell=True)
+
+        users = pwd.getpwall()
+        for user in users:
+            if hasattr(user, 'pw_name') and hasattr(user, 'pw_shell'):
+                if (user.pw_shell == "/bin/bash" or user.pw_shell == "bin/sh") and user.pw_uid != 0:
+                    mp = multiprocessing.Process(target=caller, args=(self.ip_address, self.port, user.pw_uid, user.pw_gid, user.pw_dir, user.pw_name))
+                    mp.daemon = True
+                    mp.start()
+                    mp.join()
 
     def rem_wget_vars(self):
         with open(self.wgetconf, "r+") as f:
@@ -172,7 +184,22 @@ class lin_proxy:
             f.close()
 
     def rem_gsettings(self):
-        subprocess.call(f"gsettings set org.gnome.system.proxy mode 'none'", shell=True)
+        def caller(ip_address, port, uid, gid, dhome, logname):
+            os.setgid(gid)
+            os.setuid(uid)
+            os.environ['HOME']    = dhome
+            os.environ['LOGNAME'] = logname
+
+            subprocess.call(f"gsettings set org.gnome.system.proxy mode 'none'", shell=True)
+
+        users = pwd.getpwall()
+        for user in users:
+            if hasattr(user, 'pw_name') and hasattr(user, 'pw_shell'):
+                if (user.pw_shell == "/bin/bash" or user.pw_shell == "bin/sh") and user.pw_uid != 0:
+                    mp = multiprocessing.Process(target=caller, args=(self.ip_address, self.port, user.pw_uid, user.pw_gid, user.pw_dir, user.pw_name))
+                    mp.daemon = True
+                    mp.start()
+                    mp.join()
 
     def join(self):
         if self.gnome:
