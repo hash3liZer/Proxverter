@@ -3,6 +3,7 @@ import OpenSSL
 import random
 import re
 import os
+import shutil
 import platform
 import subprocess
 
@@ -153,6 +154,12 @@ class Importer:
         else:
             return 1
 
+    def __import_linux(self):
+        shutil.copy(self.home_paths['certname'], f"/usr/local/share/ca-certificates/proxverter.pem")
+        shutil.copy(self.home_paths['certname'], f"/etc/ssl/certs/proxverter.pem")
+        rtval = subprocess.call("update-ca-certificates", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return rtval
+
     def cimport(self):
         plat = platform.system().lower()
         if plat == "windows":
@@ -160,7 +167,8 @@ class Importer:
             self.__config_wn_firefox()
             return rtval
         elif plat == "linux":
-            pass
+            rtval = self.__import_linux()
+            return rtval
         elif plat == "macos":
             pass
         else:

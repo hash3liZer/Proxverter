@@ -127,12 +127,12 @@ class lin_proxy:
             os.environ['HOME']    = dhome
             os.environ['LOGNAME'] = logname
 
-            subprocess.call(f"gsettings set org.gnome.system.proxy mode 'manual'", shell=True)
-            subprocess.call(f"gsettings set org.gnome.system.proxy.http host '{ip_address}'", shell=True)
-            subprocess.call(f"gsettings set org.gnome.system.proxy.http port {port}", shell=True)
-            subprocess.call(f"gsettings set org.gnome.system.proxy.https host '{ip_address}'", shell=True)
-            subprocess.call(f"gsettings set org.gnome.system.proxy.https port {port}", shell=True)
-            subprocess.call(f"gsettings set org.gnome.system.proxy use-same-proxy true", shell=True)
+            subprocess.call(f"dbus-launch gsettings set org.gnome.system.proxy mode 'manual'", shell=True)
+            subprocess.call(f"dbus-launch gsettings set org.gnome.system.proxy.http host '{ip_address}'", shell=True)
+            subprocess.call(f"dbus-launch gsettings set org.gnome.system.proxy.http port {port}", shell=True)
+            subprocess.call(f"dbus-launch gsettings set org.gnome.system.proxy.https host '{ip_address}'", shell=True)
+            subprocess.call(f"dbus-launch gsettings set org.gnome.system.proxy.https port {port}", shell=True)
+            subprocess.call(f"dbus-launch gsettings set org.gnome.system.proxy use-same-proxy true", shell=True)
 
         users = pwd.getpwall()
         for user in users:
@@ -190,7 +190,7 @@ class lin_proxy:
             os.environ['HOME']    = dhome
             os.environ['LOGNAME'] = logname
 
-            subprocess.call(f"gsettings set org.gnome.system.proxy mode 'none'", shell=True)
+            subprocess.call(f"dbus-launch gsettings set org.gnome.system.proxy mode 'none'", shell=True)
 
         users = pwd.getpwall()
         for user in users:
