@@ -6,7 +6,6 @@ import multiprocessing
 import os
 import re
 import sys
-import pwd
 
 class mac_proxy:
     '''
@@ -26,6 +25,7 @@ class lin_proxy:
     '''
 
     def __init__(self, ip_address, port):
+        globals()["pwd"] = __import__("pwd")
         self.aptconf    = '/etc/apt/apt.conf'
         self.envconf    = '/etc/environment'
         self.bashconf   = '/etc/bash.bashrc'
@@ -137,7 +137,7 @@ class lin_proxy:
         users = pwd.getpwall()
         for user in users:
             if hasattr(user, 'pw_name') and hasattr(user, 'pw_shell'):
-                if (user.pw_shell == "/bin/bash" or user.pw_shell == "bin/sh") and user.pw_uid != 0:
+                if (user.pw_shell == "/bin/bash" or user.pw_shell == "bin/sh"):
                     mp = multiprocessing.Process(target=caller, args=(self.ip_address, self.port, user.pw_uid, user.pw_gid, user.pw_dir, user.pw_name))
                     mp.daemon = True
                     mp.start()
@@ -195,7 +195,7 @@ class lin_proxy:
         users = pwd.getpwall()
         for user in users:
             if hasattr(user, 'pw_name') and hasattr(user, 'pw_shell'):
-                if (user.pw_shell == "/bin/bash" or user.pw_shell == "bin/sh") and user.pw_uid != 0:
+                if (user.pw_shell == "/bin/bash" or user.pw_shell == "bin/sh"):
                     mp = multiprocessing.Process(target=caller, args=(self.ip_address, self.port, user.pw_uid, user.pw_gid, user.pw_dir, user.pw_name))
                     mp.daemon = True
                     mp.start()
@@ -204,20 +204,20 @@ class lin_proxy:
     def join(self):
         if self.gnome:
             self.set_gsettings()
-        else:
-            self.set_env_vars()
-            self.set_apt_vars()
-            self.set_bash_vars()
-            self.set_wget_vars()
+
+        self.set_env_vars()
+        self.set_apt_vars()
+        self.set_bash_vars()
+        self.set_wget_vars()
 
     def del_proxy(self):
         if self.gnome:
             self.rem_gsettings()
-        else:
-            self.rem_wget_vars()
-            self.rem_bash_vars()
-            self.rem_apt_vars()
-            self.rem_env_vars()
+
+        self.rem_wget_vars()
+        self.rem_bash_vars()
+        self.rem_apt_vars()
+        self.rem_env_vars()
 
 class win_proxy:
     '''

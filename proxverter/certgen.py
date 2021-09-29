@@ -155,10 +155,33 @@ class Importer:
             return 1
 
     def __import_linux(self):
-        shutil.copy(self.home_paths['certname'], f"/usr/local/share/ca-certificates/proxverter.pem")
-        shutil.copy(self.home_paths['certname'], f"/etc/ssl/certs/proxverter.pem")
-        rtval = subprocess.call("update-ca-certificates", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return rtval
+        globals()["pwd"] = __import__("pwd")
+        shutil.copy(self.home_paths['certname'], f"/usr/local/share/ca-certificates/proxverter.crt")
+        subprocess.call("chmod 777 /usr/local/share/ca-certificates/proxverter.crt", shell=True)
+        subprocess.call("update-ca-certificates", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        users = pwd.getpwall()
+        for user in users:
+            if hasattr(user, 'pw_name') and hasattr(user, 'pw_shell'):
+                if (user.pw_shell == "/bin/bash" or user.pw_shell == "bin/sh"):
+
+                    ## For Chrome
+                    if not os.path.isdir(os.path.join(user.pw_dir, ".pki/nssdb")):
+                        os.makedirs(os.path.join(user.pw_dir, ".pki/nssdb"))
+                    subprocess.call(f'certutil -d sql:{user.pw_dir}/.pki/nssdb -A -t "C,C,C" -n proxverter -i {self.home_paths["certname"]}', shell=True)
+
+                    ## For Firefox
+                    if os.path.isdir(os.path.join(user.pw_dir, ".mozilla/firefox")):
+                        dirm = ""
+                        for dd in os.listdir(os.path.join(user.pw_dir, ".mozilla/firefox")):
+                            if dd.endswith("-release"):
+                                dirm = dd
+                                break
+
+                        if dirm:
+                            subprocess.call(f'certutil -d "sql:{user.pw_dir}/.mozilla/firefox/{dirm}" -A -t "C,C,C" -n proxverter -i {self.home_paths["certname"]}', shell=True)
+
+        return 0
 
     def cimport(self):
         plat = platform.system().lower()
