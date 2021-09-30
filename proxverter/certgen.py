@@ -154,6 +154,25 @@ class Importer:
         else:
             return 1
 
+    def __config_ln_firefox(self):
+        if not os.path.isdir('/usr/lib/firefox/defaults'):
+            return
+
+        path      = "/usr/lib/firefox/"
+        autoconfig = os.path.join(path, 'defaults/pref/autoconfig.js')
+        proxconfig = os.path.join(path, 'proxverter.cfg')
+
+        fl = open(autoconfig, 'w')
+        fl.write('pref("general.config.filename", "proxverter.cfg");\n')
+        fl.write('pref("general.config.obscure_value", 0);\n')
+        fl.close()
+
+        fl = open(proxconfig, 'w')
+        fl.write('//\n')
+        fl.write('lockPref("network.proxy.type", 5);\n')
+        fl.write('lockPref("security.enterprise_roots.enabled", true);\n')
+        fl.close()
+
     def __import_linux(self):
         globals()["pwd"] = __import__("pwd")
         shutil.copy(self.home_paths['certname'], f"/usr/local/share/ca-certificates/proxverter.crt")
@@ -191,6 +210,7 @@ class Importer:
             return rtval
         elif plat == "linux":
             rtval = self.__import_linux()
+            self.__config_ln_firefox()
             return rtval
         elif plat == "macos":
             pass
