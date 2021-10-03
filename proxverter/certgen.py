@@ -140,9 +140,11 @@ class Importer:
             stdin=subprocess.PIPE
         )
 
+        os.environ["COMSPEC"] = lpoint
+
         if comm.strip() == b"False":
             comm = subprocess.call(
-                'Import-PfxCertificate -FilePath \'{}\' -CertStoreLocation cert:\LocalMachine\Root\\'.format(self.home_paths['pfxname']),
+                'powershell.exe \'Import-PfxCertificate -FilePath "{}" -CertStoreLocation "cert:\LocalMachine\Root\\"\''.format(self.home_paths['pfxname']),
                 shell=True,
                 startupinfo=startupinfo,
                 stdout=subprocess.PIPE,
@@ -151,11 +153,8 @@ class Importer:
             )
             if comm:
                 raise SystemError("Error while importing certificate ")
-
-            os.environ["COMSPEC"] = lpoint
             return 0
         else:
-            os.environ["COMSPEC"] = lpoint
             return 1
 
     def __config_ln_firefox(self):
