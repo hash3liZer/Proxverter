@@ -138,6 +138,7 @@ class Proxverter:
                     self.inargs,
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
+                    num_workers=1,
                     plugins = self.plugins
                 )
             else:
@@ -153,11 +154,12 @@ class Proxverter:
 
                     if not os.path.isfile(privfile):
                         raise FileNotFoundError("Given certificate file doesn't exists")
-                        
+
                 proxy.main(
                     self.inargs,
                     hostname = ipaddress.IPv4Address(self.ip_address),
                     port = self.port,
+                    num_workers=1,
                     ca_key_file = self.home_paths['privname'] if not privfile else privfile,
                     ca_cert_file = self.home_paths['certname'] if not certfile else certfile,
                     ca_signing_key_file = self.home_paths['privname'] if not privfile else privfile,

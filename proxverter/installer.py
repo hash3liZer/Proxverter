@@ -38,7 +38,7 @@ class Installer:
             )
 
         try:
-            cmline.communicate(timeout=40)
+            cmline.communicate(timeout=60)
         except subprocess.TimeoutExpired:
             return False
         finally:

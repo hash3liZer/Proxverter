@@ -122,10 +122,8 @@ class Importer:
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-        lpoint = os.environ.get("COMSPEC", None)
-        os.environ["COMSPEC"] = "powershell"
         comm = subprocess.check_output(
-            'Get-PfxCertificate -FilePath \'{}\''.format(self.home_paths['pfxname']),
+            'powershell.exe "Get-PfxCertificate -FilePath \'{}\'"'.format(self.home_paths['pfxname']),
             shell=True,
             startupinfo=startupinfo,
             stdin=subprocess.PIPE
@@ -134,17 +132,15 @@ class Importer:
         thumbprint = comm.split(b"\r\n")[3].split(b" ")[0].decode()
 
         comm = subprocess.check_output(
-            'Test-Path (Join-Path Cert:\LocalMachine\Root\ {})'.format(thumbprint),
+            'powershell.exe "Test-Path (Join-Path Cert:\LocalMachine\Root\ {})"'.format(thumbprint),
             shell=True,
             startupinfo=startupinfo,
             stdin=subprocess.PIPE
         )
 
-        os.environ["COMSPEC"] = lpoint
-
         if comm.strip() == b"False":
             comm = subprocess.call(
-                'powershell.exe \'Import-PfxCertificate -FilePath "{}" -CertStoreLocation "cert:\LocalMachine\Root\\"\''.format(self.home_paths['pfxname']),
+                'powershell.exe "Import-PfxCertificate -FilePath \'{}\' -CertStoreLocation \'cert:\LocalMachine\Root\\\'"'.format(self.home_paths['pfxname']),
                 shell=True,
                 startupinfo=startupinfo,
                 stdout=subprocess.PIPE,
