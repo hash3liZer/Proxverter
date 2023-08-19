@@ -291,7 +291,7 @@ class Proxy:
             prox = win_proxy(self.ip_address, self.port)
         elif plat == "linux":
             prox = lin_proxy(self.ip_address, self.port)
-        elif plat == "macos":
+        elif plat == "macos" or plat == "darwin":
             prox = mac_proxy(self.ip_address, self.port)
         else:
             raise OSError("Unable to determine the underlying operating system")
